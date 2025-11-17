@@ -5,6 +5,26 @@ import { Home, List, PlusCircle, User, LogOut, Search, DollarSign, MapPin, Bed, 
 // API Configuration
 const API_URL = 'http://localhost:5001/api';
 
+// Indian States and Cities Data
+const INDIAN_STATES = [
+  'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+  'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+  'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+  'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+  'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+];
+
+const CITIES_BY_STATE = {
+  'Karnataka': ['Bangalore', 'Mysore', 'Mangalore', 'Hubli', 'Belgaum'],
+  'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad'],
+  'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem'],
+  'Delhi': ['New Delhi', 'South Delhi', 'North Delhi', 'East Delhi', 'West Delhi'],
+  'Telangana': ['Hyderabad', 'Warangal', 'Nizamabad', 'Karimnagar', 'Khammam'],
+  'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Asansol', 'Siliguri'],
+  'Gujarat': ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Bhavnagar'],
+  // Add more as needed, or just use these major ones
+};
+
 // Auth Context
 const AuthContext = createContext();
 
@@ -461,7 +481,7 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', color: '#4f46e5', fontWeight: 'bold', fontSize: '1.25rem', marginBottom: '1rem' }}>
-          <DollarSign size={20} />
+          <span style={{ fontSize: '1.25rem' }}>₹</span>
           <span>{listing.rentAmount}/month</span>
         </div>
         <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
@@ -826,7 +846,7 @@ const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Monthly Rent ($)</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Monthly Rent (₹)</label>
             <input
               type="number"
               required
@@ -837,27 +857,38 @@ const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
-              <input
-                type="text"
-                required
-                value={formData.location.city}
-                onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-              />
-            </div>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
-              <input
-                type="text"
-                required
-                value={formData.location.state}
-                onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
-                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-              />
-            </div>
-          </div>
+  <div>
+    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
+    <input
+      list="listing-states"
+      required
+      value={formData.location.state}
+      onChange={(e) => {
+        setFormData({...formData, location: {...formData.location, state: e.target.value, city: ''}});
+      }}
+      placeholder="Select or type state"
+      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+    />
+    <datalist id="listing-states">
+      {INDIAN_STATES.map(state => <option key={state} value={state} />)}
+    </datalist>
+  </div>
+  <div>
+    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+    <input
+      list="listing-cities"
+      required
+      value={formData.location.city}
+      onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
+      placeholder="Select or type city"
+      disabled={!formData.location.state}
+      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+    />
+    <datalist id="listing-cities">
+      {CITIES_BY_STATE[formData.location.state]?.map(city => <option key={city} value={city} />)}
+    </datalist>
+  </div>
+</div>
 
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Address</label>
@@ -1117,48 +1148,40 @@ const AuthPage = () => {
           {!isLogin && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.location.city}
-                    onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
-                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.location.state}
-                    onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
-                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-                  />
-                </div>
-              </div>
+  <div>
+    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
+    <input
+      list="states"
+      required
+      value={formData.location.state}
+      onChange={(e) => {
+        setFormData({...formData, location: {...formData.location, state: e.target.value, city: ''}});
+      }}
+      placeholder="Select or type state"
+      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+    />
+    <datalist id="states">
+      {INDIAN_STATES.map(state => <option key={state} value={state} />)}
+    </datalist>
+  </div>
+  <div>
+    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+    <input
+      list="cities"
+      required
+      value={formData.location.city}
+      onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
+      placeholder="Select or type city"
+      disabled={!formData.location.state}
+      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+    />
+    <datalist id="cities">
+      {CITIES_BY_STATE[formData.location.state]?.map(city => <option key={city} value={city} />)}
+    </datalist>
+  </div>
+</div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Min Budget</label>
-                  <input
-                    type="number"
-                    value={formData.budget.min}
-                    onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value) || 0}})}
-                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Max Budget</label>
-                  <input
-                    type="number"
-                    value={formData.budget.max}
-                    onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value) || 0}})}
-                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-                  />
-                </div>
-              </div>
+              
             </>
           )}
 
@@ -1239,10 +1262,6 @@ const ProfilePage = () => {
               <p style={{ color: '#6b7280' }}>
                 {user?.location?.city ? `${user.location.city}, ${user.location.state}` : 'Not specified'}
               </p>
-            </div>
-            <div>
-              <span style={{ fontWeight: '500', color: '#374151' }}>Budget:</span>
-              <p style={{ color: '#6b7280' }}>${user?.budget?.min || 0} - ${user?.budget?.max || 0}</p>
             </div>
             <div>
               <span style={{ fontWeight: '500', color: '#374151' }}>Smoking:</span>
