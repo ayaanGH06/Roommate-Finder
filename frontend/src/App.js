@@ -347,7 +347,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Min Rent</label>
               <input
                 type="number"
-                placeholder="$0"
+                placeholder="₹0"
                 value={filters.minRent}
                 onChange={(e) => setFilters({...filters, minRent: e.target.value})}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
@@ -358,7 +358,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Max Rent</label>
               <input
                 type="number"
-                placeholder="$5000"
+                placeholder="₹5000"
                 value={filters.maxRent}
                 onChange={(e) => setFilters({...filters, maxRent: e.target.value})}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
