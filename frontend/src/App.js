@@ -230,10 +230,10 @@ const AuthPage = () => {
       smoking: 'no',
       pets: 'no',
       cleanliness: 'moderate',
-      lifestyle: 'early_bird'
+      lifestyle: 'moderate'
     },
-    budgetRange: { min: 0, max: 5000 },
-    location: ''
+    budget: { min: 0, max: 5000 },
+    location: { city: '', state: '', zipCode: '' }
   });
   const [error, setError] = useState('');
   const { login, register } = useAuth();
@@ -289,25 +289,42 @@ const AuthPage = () => {
           />
           {!isLogin && (
             <>
+              <h3 className="text-lg font-semibold mb-3 mt-4 text-gray-700">Location</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="City"
+                  type="text"
+                  value={formData.location.city}
+                  onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
+                  required
+                />
+                <Input
+                  label="State"
+                  type="text"
+                  value={formData.location.state}
+                  onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
+                  required
+                />
+              </div>
               <Input
-                label="Location (City)"
+                label="Zip Code"
                 type="text"
-                value={formData.location}
-                onChange={(e) => setFormData({...formData, location: e.target.value})}
-                required
+                value={formData.location.zipCode}
+                onChange={(e) => setFormData({...formData, location: {...formData.location, zipCode: e.target.value}})}
               />
+              
               <div className="grid grid-cols-2 gap-4">
                 <Input
                   label="Min Budget"
                   type="number"
-                  value={formData.budgetRange.min}
-                  onChange={(e) => setFormData({...formData, budgetRange: {...formData.budgetRange, min: parseInt(e.target.value)}})}
+                  value={formData.budget.min}
+                  onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value)}})}
                 />
                 <Input
                   label="Max Budget"
                   type="number"
-                  value={formData.budgetRange.max}
-                  onChange={(e) => setFormData({...formData, budgetRange: {...formData.budgetRange, max: parseInt(e.target.value)}})}
+                  value={formData.budget.max}
+                  onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value)}})}
                 />
               </div>
               
@@ -318,7 +335,8 @@ const AuthPage = () => {
                 options={[
                   { value: 'male', label: 'Male' },
                   { value: 'female', label: 'Female' },
-                  { value: 'other', label: 'Other' }
+                  { value: 'other', label: 'Other' },
+                  { value: 'no-preference', label: 'No Preference' }
                 ]}
                 value={formData.preferences.gender}
                 onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, gender: e.target.value}})}
@@ -339,7 +357,8 @@ const AuthPage = () => {
                 label="Pets"
                 options={[
                   { value: 'yes', label: 'Yes' },
-                  { value: 'no', label: 'No' }
+                  { value: 'no', label: 'No' },
+                  { value: 'negotiable', label: 'Negotiable' }
                 ]}
                 value={formData.preferences.pets}
                 onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, pets: e.target.value}})}
@@ -348,7 +367,8 @@ const AuthPage = () => {
               <Select
                 label="Cleanliness"
                 options={[
-                  { value: 'very_clean', label: 'Very Clean' },
+                  { value: 'very-clean', label: 'Very Clean' },
+                  { value: 'clean', label: 'Clean' },
                   { value: 'moderate', label: 'Moderate' },
                   { value: 'relaxed', label: 'Relaxed' }
                 ]}
@@ -359,9 +379,10 @@ const AuthPage = () => {
               <Select
                 label="Lifestyle"
                 options={[
-                  { value: 'early_bird', label: 'Early Bird' },
-                  { value: 'night_owl', label: 'Night Owl' },
-                  { value: 'flexible', label: 'Flexible' }
+                  { value: 'quiet', label: 'Quiet' },
+                  { value: 'moderate', label: 'Moderate' },
+                  { value: 'social', label: 'Social' },
+                  { value: 'party', label: 'Party' }
                 ]}
                 value={formData.preferences.lifestyle}
                 onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, lifestyle: e.target.value}})}
