@@ -408,6 +408,7 @@ const AuthPage = () => {
 const BrowseListings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const { token } = useAuth();
 
   const fetchListings = useCallback(async () => {
@@ -416,9 +417,22 @@ const BrowseListings = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      setListings(data);
+      
+      // Handle different response formats
+      if (Array.isArray(data)) {
+        setListings(data);
+      } else if (data.data && Array.isArray(data.data)) {
+        // Backend returns {success, count, data: []}
+        setListings(data.data);
+      } else {
+        console.error('Expected array but got:', data);
+        setListings([]);
+        setError(data.message || 'Failed to load listings');
+      }
     } catch (err) {
       console.error('Error fetching listings:', err);
+      setListings([]);
+      setError('Failed to load listings');
     } finally {
       setLoading(false);
     }
@@ -435,6 +449,13 @@ const BrowseListings = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">Browse Listings</h1>
+      
+      {error && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
+      
       {listings.length === 0 ? (
         <Card className="p-8 text-center text-gray-600">
           <p>No listings available yet. Be the first to create one!</p>
@@ -445,14 +466,15 @@ const BrowseListings = () => {
             <Card key={listing._id} className="overflow-hidden hover:shadow-xl transition">
               <div className="h-48 bg-gradient-to-br from-indigo-400 to-purple-500"></div>
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">{listing.propertyDetails.type}</h3>
+                <h3 className="text-xl font-semibold mb-2">{listing.title}</h3>
+                <p className="text-sm text-gray-500 mb-2">{listing.propertyType}</p>
                 <div className="flex items-center text-gray-600 mb-2">
                   <MapPin size={16} className="mr-1" />
-                  <span className="text-sm">{listing.propertyDetails.location.city}</span>
+                  <span className="text-sm">{listing.location.city}, {listing.location.state}</span>
                 </div>
                 <div className="flex items-center text-indigo-600 font-bold text-xl mb-4">
                   <DollarSign size={20} />
-                  <span>{listing.propertyDetails.rent}/month</span>
+                  <span>{listing.rentAmount}/month</span>
                 </div>
                 <div className="flex space-x-4 text-sm text-gray-600 mb-4">
                   <div className="flex items-center">
@@ -480,25 +502,28 @@ const BrowseListings = () => {
 // Create Listing Page
 const CreateListing = () => {
   const [formData, setFormData] = useState({
-    propertyDetails: {
-      type: 'apartment',
-      rent: 0,
-      location: { address: '', city: '', state: '', zipCode: '' },
-      amenities: []
+    title: '',
+    description: '',
+    propertyType: 'apartment',
+    rentAmount: 0,
+    location: {
+      address: '',
+      city: '',
+      state: '',
+      zipCode: ''
     },
+    amenities: [],
     roomDetails: {
       bedrooms: 1,
       bathrooms: 1,
       furnished: false,
       availableFrom: new Date().toISOString().split('T')[0]
     },
-    roommatePreferences: {
-      gender: 'any',
-      smoking: 'no',
-      pets: 'no',
-      occupation: 'any'
-    },
-    description: ''
+    preferences: {
+      gender: 'no-preference',
+      smoking: 'no-preference',
+      pets: 'no'
+    }
   });
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -517,15 +542,27 @@ const CreateListing = () => {
         },
         body: JSON.stringify(formData)
       });
-      if (!res.ok) throw new Error('Failed to create listing');
+      const data = await res.json();
+      
+      if (!res.ok) {
+        // Show the actual error message from backend
+        console.error('Backend error:', data);
+        throw new Error(data.message || data.error || 'Failed to create listing');
+      }
+      
       setSuccess(true);
       setFormData({
-        propertyDetails: { type: 'apartment', rent: 0, location: { address: '', city: '', state: '', zipCode: '' }, amenities: [] },
+        title: '',
+        description: '',
+        propertyType: 'apartment',
+        rentAmount: 0,
+        location: { address: '', city: '', state: '', zipCode: '' },
+        amenities: [],
         roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
-        roommatePreferences: { gender: 'any', smoking: 'no', pets: 'no', occupation: 'any' },
-        description: ''
+        preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
       });
     } catch (err) {
+      console.error('Error creating listing:', err);
       setError(err.message);
     }
   };
@@ -546,46 +583,69 @@ const CreateListing = () => {
         )}
         <form onSubmit={handleSubmit}>
           <h3 className="text-xl font-semibold mb-4 text-gray-700">Property Details</h3>
+          
+          <Input
+            label="Listing Title"
+            type="text"
+            placeholder="e.g., Spacious 2BR apartment in Downtown"
+            value={formData.title}
+            onChange={(e) => setFormData({...formData, title: e.target.value})}
+            required
+          />
+          
           <Select
             label="Property Type"
             options={[
               { value: 'apartment', label: 'Apartment' },
               { value: 'house', label: 'House' },
-              { value: 'condo', label: 'Condo' }
+              { value: 'condo', label: 'Condo' },
+              { value: 'townhouse', label: 'Townhouse' },
+              { value: 'studio', label: 'Studio' }
             ]}
-            value={formData.propertyDetails.type}
-            onChange={(e) => setFormData({...formData, propertyDetails: {...formData.propertyDetails, type: e.target.value}})}
+            value={formData.propertyType}
+            onChange={(e) => setFormData({...formData, propertyType: e.target.value})}
           />
+          
           <Input
             label="Monthly Rent ($)"
             type="number"
-            value={formData.propertyDetails.rent}
-            onChange={(e) => setFormData({...formData, propertyDetails: {...formData.propertyDetails, rent: parseInt(e.target.value)}})}
+            value={formData.rentAmount}
+            onChange={(e) => setFormData({...formData, rentAmount: parseInt(e.target.value) || 0})}
             required
           />
+          
           <Input
             label="Address"
             type="text"
-            value={formData.propertyDetails.location.address}
-            onChange={(e) => setFormData({...formData, propertyDetails: {...formData.propertyDetails, location: {...formData.propertyDetails.location, address: e.target.value}}})}
+            value={formData.location.address}
+            onChange={(e) => setFormData({...formData, location: {...formData.location, address: e.target.value}})}
             required
           />
+          
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="City"
               type="text"
-              value={formData.propertyDetails.location.city}
-              onChange={(e) => setFormData({...formData, propertyDetails: {...formData.propertyDetails, location: {...formData.propertyDetails.location, city: e.target.value}}})}
+              value={formData.location.city}
+              onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
               required
             />
             <Input
               label="State"
               type="text"
-              value={formData.propertyDetails.location.state}
-              onChange={(e) => setFormData({...formData, propertyDetails: {...formData.propertyDetails, location: {...formData.propertyDetails.location, state: e.target.value}}})}
+              value={formData.location.state}
+              onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
               required
             />
           </div>
+          
+          <Input
+            label="Zip Code"
+            type="text"
+            value={formData.location.zipCode}
+            onChange={(e) => setFormData({...formData, location: {...formData.location, zipCode: e.target.value}})}
+            required
+          />
 
           <h3 className="text-xl font-semibold mb-4 mt-6 text-gray-700">Room Details</h3>
           <div className="grid grid-cols-2 gap-4">
@@ -632,6 +692,7 @@ const CreateListing = () => {
             value={formData.description}
             onChange={(e) => setFormData({...formData, description: e.target.value})}
             placeholder="Describe your property and ideal roommate..."
+            required
           />
 
           <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-md font-semibold hover:bg-indigo-700 transition">
@@ -647,6 +708,7 @@ const CreateListing = () => {
 const Dashboard = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const { token } = useAuth();
 
   const fetchMyListings = useCallback(async () => {
@@ -655,9 +717,22 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      setListings(data);
+      
+      // Handle different response formats
+      if (Array.isArray(data)) {
+        setListings(data);
+      } else if (data.data && Array.isArray(data.data)) {
+        // Backend returns {success, count, data: []}
+        setListings(data.data);
+      } else {
+        console.error('Expected array but got:', data);
+        setListings([]);
+        setError(data.message || 'Failed to load your listings');
+      }
     } catch (err) {
       console.error('Error fetching listings:', err);
+      setListings([]);
+      setError('Failed to load your listings');
     } finally {
       setLoading(false);
     }
@@ -687,6 +762,13 @@ const Dashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8 text-gray-800">My Listings</h1>
+      
+      {error && (
+        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
+      
       {listings.length === 0 ? (
         <Card className="p-8 text-center text-gray-600">
           <p className="mb-4">You haven't created any listings yet.</p>
@@ -698,9 +780,10 @@ const Dashboard = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {listings.map(listing => (
             <Card key={listing._id} className="p-6">
-              <h3 className="text-xl font-semibold mb-2">{listing.propertyDetails.type}</h3>
-              <p className="text-gray-600 mb-2">{listing.propertyDetails.location.city}, {listing.propertyDetails.location.state}</p>
-              <p className="text-indigo-600 font-bold text-xl mb-4">${listing.propertyDetails.rent}/month</p>
+              <h3 className="text-xl font-semibold mb-2">{listing.title}</h3>
+              <p className="text-sm text-gray-500 mb-2">{listing.propertyType}</p>
+              <p className="text-gray-600 mb-2">{listing.location.city}, {listing.location.state}</p>
+              <p className="text-indigo-600 font-bold text-xl mb-4">${listing.rentAmount}/month</p>
               <p className="text-gray-700 mb-4 line-clamp-2">{listing.description}</p>
               <div className="flex space-x-2">
                 <button className="flex-1 bg-indigo-100 text-indigo-600 py-2 rounded hover:bg-indigo-200">
@@ -740,11 +823,11 @@ const ProfilePage = () => {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="font-medium text-gray-700">Location:</span>
-              <p className="text-gray-600">{user?.location || 'Not specified'}</p>
+              <p className="text-gray-600">{user?.location?.city ? `${user.location.city}, ${user.location.state} ${user.location.zipCode}` : 'Not specified'}</p>
             </div>
             <div>
               <span className="font-medium text-gray-700">Budget Range:</span>
-              <p className="text-gray-600">${user?.budgetRange?.min} - ${user?.budgetRange?.max}</p>
+              <p className="text-gray-600">${user?.budget?.min || 0} - ${user?.budget?.max || 0}</p>
             </div>
             <div>
               <span className="font-medium text-gray-700">Gender Preference:</span>
