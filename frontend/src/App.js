@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
-import { Home, List, PlusCircle, User, LogOut, Search, DollarSign, MapPin, Bed, Bath, Calendar } from 'lucide-react';
+import { Home, List, PlusCircle, User, LogOut, Search, DollarSign, MapPin, Bed, Bath, Calendar, Filter, Heart, Edit } from 'lucide-react';
 
 // API Configuration
 const API_URL = 'http://localhost:5001/api';
@@ -50,7 +50,6 @@ const AuthProvider = ({ children }) => {
     if (!res.ok) throw new Error(data.message || 'Login failed');
     localStorage.setItem('token', data.token);
     setToken(data.token);
-    setUser(data.user);
     return data;
   };
 
@@ -64,7 +63,6 @@ const AuthProvider = ({ children }) => {
     if (!res.ok) throw new Error(data.message || 'Registration failed');
     localStorage.setItem('token', data.token);
     setToken(data.token);
-    setUser(data.user);
     return data;
   };
 
@@ -83,50 +81,193 @@ const AuthProvider = ({ children }) => {
 
 const useAuth = () => useContext(AuthContext);
 
+// Compatibility Badge Component
+const CompatibilityBadge = ({ score }) => {
+  const getColor = () => {
+    if (score >= 80) return 'bg-green-100 text-green-700 border-green-300';
+    if (score >= 60) return 'bg-blue-100 text-blue-700 border-blue-300';
+    if (score >= 40) return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+    return 'bg-gray-100 text-gray-700 border-gray-300';
+  };
+
+  return (
+    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${getColor()}`}>
+      <Heart size={14} className="mr-1" fill="currentColor" />
+      {score}% Match
+    </div>
+  );
+};
+
 // Navbar Component
 const Navbar = ({ currentPage, setCurrentPage }) => {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="bg-indigo-600 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <button onClick={() => setCurrentPage('home')} className="text-xl font-bold flex items-center space-x-2">
+    <nav style={{ 
+      position: 'sticky', 
+      top: 0, 
+      zIndex: 50,
+      backgroundColor: '#4f46e5',
+      color: 'white',
+      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+    }}>
+      <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <button 
+              onClick={() => setCurrentPage('home')} 
+              style={{ 
+                fontSize: '1.25rem', 
+                fontWeight: 'bold', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                background: 'none',
+                border: 'none',
+                color: 'white',
+                cursor: 'pointer'
+              }}
+            >
               <Home size={24} />
               <span>RoommateFinder</span>
             </button>
             {user && (
-              <div className="hidden md:flex space-x-4">
-                <button onClick={() => setCurrentPage('browse')} className="hover:bg-indigo-700 px-3 py-2 rounded flex items-center space-x-1">
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                <button 
+                  onClick={() => setCurrentPage('matches')} 
+                  style={{ 
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <Heart size={18} />
+                  <span>Matches</span>
+                </button>
+                <button 
+                  onClick={() => setCurrentPage('browse')} 
+                  style={{ 
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <Search size={18} />
                   <span>Browse</span>
                 </button>
-                <button onClick={() => setCurrentPage('create')} className="hover:bg-indigo-700 px-3 py-2 rounded flex items-center space-x-1">
+                <button 
+                  onClick={() => setCurrentPage('create')} 
+                  style={{ 
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <PlusCircle size={18} />
-                  <span>Create Listing</span>
+                  <span>Create</span>
                 </button>
-                <button onClick={() => setCurrentPage('dashboard')} className="hover:bg-indigo-700 px-3 py-2 rounded flex items-center space-x-1">
+                <button 
+                  onClick={() => setCurrentPage('dashboard')} 
+                  style={{ 
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <List size={18} />
                   <span>My Listings</span>
                 </button>
               </div>
             )}
           </div>
-          <div className="flex items-center space-x-4">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {user ? (
               <>
-                <button onClick={() => setCurrentPage('profile')} className="hover:bg-indigo-700 px-3 py-2 rounded flex items-center space-x-2">
+                <button 
+                  onClick={() => setCurrentPage('profile')}
+                  style={{ 
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
                   <User size={18} />
-                  <span className="hidden md:inline">{user.name}</span>
+                  <span>{user.name}</span>
                 </button>
-                <button onClick={logout} className="bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded flex items-center space-x-2">
+                <button 
+                  onClick={logout}
+                  style={{ 
+                    padding: '0.5rem 1rem',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    backgroundColor: '#4338ca',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontWeight: '600'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#3730a3'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                >
                   <LogOut size={18} />
                   <span>Logout</span>
                 </button>
               </>
             ) : (
-              <button onClick={() => setCurrentPage('auth')} className="bg-white text-indigo-600 hover:bg-gray-100 px-4 py-2 rounded font-semibold">
+              <button 
+                onClick={() => setCurrentPage('auth')}
+                style={{ 
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  backgroundColor: 'white',
+                  color: '#4f46e5',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
                 Login / Sign Up
               </button>
             )}
@@ -137,101 +278,773 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
   );
 };
 
-// Card Component
-const Card = ({ children, className = '' }) => (
-  <div className={`bg-white rounded-lg shadow-md ${className}`}>
-    {children}
-  </div>
-);
+// Filter Panel Component
+const FilterPanel = ({ filters, setFilters, onApply }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
-// Input Component
-const Input = ({ label, error, ...props }) => (
-  <div className="mb-4">
-    {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
-    <input
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      {...props}
-    />
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-  </div>
-);
+  return (
+    <div style={{ marginBottom: '1.5rem' }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.75rem 1.5rem',
+          backgroundColor: '#4f46e5',
+          color: 'white',
+          border: 'none',
+          borderRadius: '0.5rem',
+          cursor: 'pointer',
+          fontWeight: '600'
+        }}
+      >
+        <Filter size={18} />
+        {isOpen ? 'Hide Filters' : 'Show Filters'}
+      </button>
 
-// Select Component
-const Select = ({ label, options, ...props }) => (
-  <div className="mb-4">
-    {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
-    <select
-      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      {...props}
-    >
-      {options.map(opt => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      ))}
-    </select>
-  </div>
-);
+      {isOpen && (
+        <div style={{
+          marginTop: '1rem',
+          padding: '1.5rem',
+          backgroundColor: 'white',
+          borderRadius: '0.5rem',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+              <input
+                type="text"
+                placeholder="Enter city"
+                value={filters.city}
+                onChange={(e) => setFilters({...filters, city: e.target.value})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
 
-// Landing Page
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Min Rent</label>
+              <input
+                type="number"
+                placeholder="$0"
+                value={filters.minRent}
+                onChange={(e) => setFilters({...filters, minRent: e.target.value})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Max Rent</label>
+              <input
+                type="number"
+                placeholder="$5000"
+                value={filters.maxRent}
+                onChange={(e) => setFilters({...filters, maxRent: e.target.value})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Property Type</label>
+              <select
+                value={filters.propertyType}
+                onChange={(e) => setFilters({...filters, propertyType: e.target.value})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="">All Types</option>
+                <option value="apartment">Apartment</option>
+                <option value="house">House</option>
+                <option value="condo">Condo</option>
+                <option value="townhouse">Townhouse</option>
+                <option value="studio">Studio</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Bedrooms</label>
+              <select
+                value={filters.bedrooms}
+                onChange={(e) => setFilters({...filters, bedrooms: e.target.value})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="">Any</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4+</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Pets</label>
+              <select
+                value={filters.pets}
+                onChange={(e) => setFilters({...filters, pets: e.target.value})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="">Any</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+                <option value="negotiable">Negotiable</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={onApply}
+              style={{
+                padding: '0.5rem 1.5rem',
+                backgroundColor: '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Apply Filters
+            </button>
+            <button
+              onClick={() => {
+                setFilters({ city: '', minRent: '', maxRent: '', propertyType: '', bedrooms: '', pets: '' });
+                onApply();
+              }}
+              style={{
+                padding: '0.5rem 1.5rem',
+                backgroundColor: '#e5e7eb',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Listing Card Component
+const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) => {
+  return (
+    <div style={{
+      backgroundColor: 'white',
+      borderRadius: '0.5rem',
+      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+      overflow: 'hidden',
+      transition: 'box-shadow 0.2s'
+    }}>
+      <div style={{
+        height: '12rem',
+        background: 'linear-gradient(to bottom right, #818cf8, #a855f7)'
+      }} />
+      <div style={{ padding: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>{listing.title}</h3>
+          {showCompatibility && listing.compatibility && (
+            <CompatibilityBadge score={listing.compatibility.score} />
+          )}
+        </div>
+        <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+          {listing.propertyType}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280', marginBottom: '0.5rem' }}>
+          <MapPin size={16} style={{ marginRight: '0.25rem' }} />
+          <span style={{ fontSize: '0.875rem' }}>
+            {listing.location.city}, {listing.location.state}
+          </span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', color: '#4f46e5', fontWeight: 'bold', fontSize: '1.25rem', marginBottom: '1rem' }}>
+          <DollarSign size={20} />
+          <span>{listing.rentAmount}/month</span>
+        </div>
+        <div style={{ display: 'flex', gap: '1rem', fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Bed size={16} style={{ marginRight: '0.25rem' }} />
+            <span>{listing.roomDetails.bedrooms} bed</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Bath size={16} style={{ marginRight: '0.25rem' }} />
+            <span>{listing.roomDetails.bathrooms} bath</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', fontSize: '0.875rem', color: '#6b7280' }}>
+          <Calendar size={16} style={{ marginRight: '0.25rem' }} />
+          <span>Available: {new Date(listing.roomDetails.availableFrom).toLocaleDateString()}</span>
+        </div>
+
+        {(onEdit || onDelete) && (
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+            {onEdit && (
+              <button
+                onClick={() => onEdit(listing)}
+                style={{
+                  flex: 1,
+                  padding: '0.5rem',
+                  backgroundColor: '#e0e7ff',
+                  color: '#4f46e5',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                Edit
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={() => onDelete(listing._id)}
+                style={{
+                  flex: 1,
+                  padding: '0.5rem',
+                  backgroundColor: '#fee2e2',
+                  color: '#dc2626',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '600'
+                }}
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Matches Page
+const MatchesPage = () => {
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const res = await fetch(`${API_URL}/listings/matches/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        setListings(data.data || []);
+      } catch (err) {
+        console.error('Error fetching matches:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMatches();
+  }, [token]);
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '5rem 0', color: '#6b7280' }}>Loading matches...</div>;
+  }
+
+  return (
+    <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>Your Best Matches</h1>
+      
+      {listings.length === 0 ? (
+        <div style={{
+          padding: '2rem',
+          backgroundColor: 'white',
+          borderRadius: '0.5rem',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+          textAlign: 'center',
+          color: '#6b7280'
+        }}>
+          <p>No matches found. Try adjusting your preferences!</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          {listings.map(listing => (
+            <ListingCard key={listing._id} listing={listing} showCompatibility={true} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Browse with Filters
+const BrowseListings = () => {
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    city: '',
+    minRent: '',
+    maxRent: '',
+    propertyType: '',
+    bedrooms: '',
+    pets: ''
+  });
+  const { token } = useAuth();
+
+  const fetchListings = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      Object.keys(filters).forEach(key => {
+        if (filters[key]) params.append(key, filters[key]);
+      });
+
+      const res = await fetch(`${API_URL}/listings/search?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      const data = await res.json();
+      setListings(data.data || []);
+    } catch (err) {
+      console.error('Error fetching listings:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchListings();
+  }, []);
+
+  return (
+    <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>Browse Listings</h1>
+      
+      <FilterPanel filters={filters} setFilters={setFilters} onApply={fetchListings} />
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '5rem 0', color: '#6b7280' }}>Loading...</div>
+      ) : listings.length === 0 ? (
+        <div style={{
+          padding: '2rem',
+          backgroundColor: 'white',
+          borderRadius: '0.5rem',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+          textAlign: 'center',
+          color: '#6b7280'
+        }}>
+          <p>No listings found matching your criteria.</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          {listings.map(listing => (
+            <ListingCard key={listing._id} listing={listing} showCompatibility={!!token} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Dashboard with Edit
+const Dashboard = ({ setCurrentPage, setEditingListing }) => {
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { token } = useAuth();
+
+  const fetchMyListings = async () => {
+    try {
+      const res = await fetch(`${API_URL}/listings/user/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setListings(data.data || []);
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMyListings();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this listing?')) return;
+    try {
+      await fetch(`${API_URL}/listings/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setListings(listings.filter(l => l._id !== id));
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  const handleEdit = (listing) => {
+    setEditingListing(listing);
+    setCurrentPage('edit');
+  };
+
+  if (loading) {
+    return <div style={{ textAlign: 'center', padding: '5rem 0' }}>Loading...</div>;
+  }
+
+  return (
+    <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>My Listings</h1>
+      
+      {listings.length === 0 ? (
+        <div style={{
+          padding: '2rem',
+          backgroundColor: 'white',
+          borderRadius: '0.5rem',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+          textAlign: 'center'
+        }}>
+          <p style={{ marginBottom: '1rem', color: '#6b7280' }}>No listings yet.</p>
+          <button
+            onClick={() => setCurrentPage('create')}
+            style={{
+              padding: '0.5rem 1.5rem',
+              backgroundColor: '#4f46e5',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontWeight: '600'
+            }}
+          >
+            Create First Listing
+          </button>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          {listings.map(listing => (
+            <ListingCard
+              key={listing._id}
+              listing={listing}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Create/Edit Listing Form
+const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
+  const [formData, setFormData] = useState(editingListing || {
+    title: '',
+    description: '',
+    propertyType: 'apartment',
+    rentAmount: 0,
+    location: { address: '', city: '', state: '', zipCode: '' },
+    roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
+    preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
+  });
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const { token } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess(false);
+    try {
+      const url = editingListing ? `${API_URL}/listings/${editingListing._id}` : `${API_URL}/listings`;
+      const method = editingListing ? 'PUT' : 'POST';
+      
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to save listing');
+      }
+      
+      setSuccess(true);
+      setTimeout(() => {
+        setEditingListing(null);
+        setCurrentPage('dashboard');
+      }, 1500);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>
+        {editingListing ? 'Edit Listing' : 'Create New Listing'}
+      </h1>
+      
+      <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', padding: '2rem' }}>
+        {success && (
+          <div style={{ padding: '0.75rem', backgroundColor: '#f0fdf4', color: '#16a34a', borderRadius: '0.375rem', marginBottom: '1rem' }}>
+            {editingListing ? 'Listing updated!' : 'Listing created!'} Redirecting...
+          </div>
+        )}
+        {error && (
+          <div style={{ padding: '0.75rem', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '0.375rem', marginBottom: '1rem' }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Title</label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Property Type</label>
+            <select
+              value={formData.propertyType}
+              onChange={(e) => setFormData({...formData, propertyType: e.target.value})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            >
+              <option value="apartment">Apartment</option>
+              <option value="house">House</option>
+              <option value="condo">Condo</option>
+              <option value="townhouse">Townhouse</option>
+              <option value="studio">Studio</option>
+            </select>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Monthly Rent ($)</label>
+            <input
+              type="number"
+              required
+              value={formData.rentAmount}
+              onChange={(e) => setFormData({...formData, rentAmount: parseInt(e.target.value) || 0})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+              <input
+                type="text"
+                required
+                value={formData.location.city}
+                onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
+              <input
+                type="text"
+                required
+                value={formData.location.state}
+                onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Address</label>
+            <input
+              type="text"
+              required
+              value={formData.location.address}
+              onChange={(e) => setFormData({...formData, location: {...formData.location, address: e.target.value}})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Bedrooms</label>
+              <input
+                type="number"
+                min="1"
+                required
+                value={formData.roomDetails.bedrooms}
+                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, bedrooms: parseInt(e.target.value)}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Bathrooms</label>
+              <input
+                type="number"
+                min="1"
+                required
+                value={formData.roomDetails.bathrooms}
+                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, bathrooms: parseInt(e.target.value)}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Available From</label>
+              <input
+                type="date"
+                required
+                value={formData.roomDetails.availableFrom}
+                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, availableFrom: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={formData.roomDetails.furnished}
+                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, furnished: e.target.checked}})}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Furnished</span>
+            </label>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Description</label>
+            <textarea
+              required
+              rows="4"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="submit"
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                backgroundColor: '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              {editingListing ? 'Update Listing' : 'Create Listing'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setEditingListing(null);
+                setCurrentPage('dashboard');
+              }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#e5e7eb',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Simple Landing Page
 const LandingPage = ({ setCurrentPage }) => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600">
-      <div className="max-w-6xl mx-auto px-4 py-20 text-center text-white">
-        <h1 className="text-5xl font-bold mb-6">Find Your Perfect Roommate</h1>
-        <p className="text-xl mb-8 opacity-90">Connect with compatible roommates and discover your ideal living space</p>
-        <div className="flex justify-center space-x-4">
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(to bottom right, #6366f1, #9333ea)' }}>
+      <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '5rem 1rem', textAlign: 'center', color: 'white' }}>
+        <h1 style={{ fontSize: '3rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>Find Your Perfect Roommate</h1>
+        <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: 0.9 }}>
+          Connect with compatible roommates using our smart matching algorithm
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           {user ? (
             <>
-              <button onClick={() => setCurrentPage('browse')} className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-                Browse Listings
+              <button
+                onClick={() => setCurrentPage('matches')}
+                style={{
+                  padding: '1rem 2rem',
+                  backgroundColor: 'white',
+                  color: '#4f46e5',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '1rem'
+                }}
+              >
+                View Matches
               </button>
-              <button onClick={() => setCurrentPage('create')} className="bg-indigo-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-800 transition">
-                Create Listing
+              <button
+                onClick={() => setCurrentPage('browse')}
+                style={{
+                  padding: '1rem 2rem',
+                  backgroundColor: '#4338ca',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '1rem'
+                }}
+              >
+                Browse Listings
               </button>
             </>
           ) : (
-            <button onClick={() => setCurrentPage('auth')} className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+            <button
+              onClick={() => setCurrentPage('auth')}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'white',
+                color: '#4f46e5',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '1rem'
+              }}
+            >
               Get Started
             </button>
           )}
-        </div>
-        <div className="mt-20 grid md:grid-cols-3 gap-8">
-          <Card className="p-6 text-gray-800">
-            <Search size={48} className="mx-auto mb-4 text-indigo-600" />
-            <h3 className="text-xl font-semibold mb-2">Easy Search</h3>
-            <p className="text-gray-600">Filter by location, budget, and preferences to find your match</p>
-          </Card>
-          <Card className="p-6 text-gray-800">
-            <User size={48} className="mx-auto mb-4 text-indigo-600" />
-            <h3 className="text-xl font-semibold mb-2">Verified Profiles</h3>
-            <p className="text-gray-600">Connect with real people looking for roommates</p>
-          </Card>
-          <Card className="p-6 text-gray-800">
-            <Home size={48} className="mx-auto mb-4 text-indigo-600" />
-            <h3 className="text-xl font-semibold mb-2">Quality Listings</h3>
-            <p className="text-gray-600">Browse detailed property and roommate information</p>
-          </Card>
         </div>
       </div>
     </div>
   );
 };
 
-// Auth Page
+// Auth Page (simplified version)
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    preferences: {
-      gender: 'male',
-      smoking: 'no',
-      pets: 'no',
-      cleanliness: 'moderate',
-      lifestyle: 'moderate'
-    },
+    preferences: { gender: 'no-preference', smoking: 'no', pets: 'no', cleanliness: 'moderate', lifestyle: 'moderate' },
     budget: { min: 0, max: 5000 },
     location: { city: '', state: '', zipCode: '' }
   });
@@ -253,550 +1066,137 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-      <Card className="max-w-md w-full p-8">
-        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1rem' }}>
+      <div style={{ maxWidth: '28rem', width: '100%', backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', padding: '2rem' }}>
+        <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', textAlign: 'center', marginBottom: '1.5rem' }}>
           {isLogin ? 'Welcome Back' : 'Create Account'}
         </h2>
+        
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">
+          <div style={{ padding: '0.75rem', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '0.375rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
             {error}
           </div>
         )}
+
         <form onSubmit={handleSubmit}>
           {!isLogin && (
-            <Input
-              label="Full Name"
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              required
-            />
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Name</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
           )}
-          <Input
-            label="Email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
-            required
-          />
-          <Input
-            label="Password"
-            type="password"
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            required
-          />
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Email</label>
+            <input
+              type="email"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Password</label>
+            <input
+              type="password"
+              required
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
           {!isLogin && (
             <>
-              <h3 className="text-lg font-semibold mb-3 mt-4 text-gray-700">Location</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="City"
-                  type="text"
-                  value={formData.location.city}
-                  onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
-                  required
-                />
-                <Input
-                  label="State"
-                  type="text"
-                  value={formData.location.state}
-                  onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
-                  required
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.location.city}
+                    onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.location.state}
+                    onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                  />
+                </div>
               </div>
-              <Input
-                label="Zip Code"
-                type="text"
-                value={formData.location.zipCode}
-                onChange={(e) => setFormData({...formData, location: {...formData.location, zipCode: e.target.value}})}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Min Budget"
-                  type="number"
-                  value={formData.budget.min}
-                  onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value)}})}
-                />
-                <Input
-                  label="Max Budget"
-                  type="number"
-                  value={formData.budget.max}
-                  onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value)}})}
-                />
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Min Budget</label>
+                  <input
+                    type="number"
+                    value={formData.budget.min}
+                    onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value) || 0}})}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Max Budget</label>
+                  <input
+                    type="number"
+                    value={formData.budget.max}
+                    onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value) || 0}})}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                  />
+                </div>
               </div>
-              
-              <h3 className="text-lg font-semibold mb-3 mt-4 text-gray-700">Your Preferences</h3>
-              
-              <Select
-                label="Gender"
-                options={[
-                  { value: 'male', label: 'Male' },
-                  { value: 'female', label: 'Female' },
-                  { value: 'other', label: 'Other' },
-                  { value: 'no-preference', label: 'No Preference' }
-                ]}
-                value={formData.preferences.gender}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, gender: e.target.value}})}
-              />
-              
-              <Select
-                label="Smoking"
-                options={[
-                  { value: 'yes', label: 'Yes' },
-                  { value: 'no', label: 'No' },
-                  { value: 'occasionally', label: 'Occasionally' }
-                ]}
-                value={formData.preferences.smoking}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, smoking: e.target.value}})}
-              />
-              
-              <Select
-                label="Pets"
-                options={[
-                  { value: 'yes', label: 'Yes' },
-                  { value: 'no', label: 'No' },
-                  { value: 'negotiable', label: 'Negotiable' }
-                ]}
-                value={formData.preferences.pets}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, pets: e.target.value}})}
-              />
-              
-              <Select
-                label="Cleanliness"
-                options={[
-                  { value: 'very-clean', label: 'Very Clean' },
-                  { value: 'clean', label: 'Clean' },
-                  { value: 'moderate', label: 'Moderate' },
-                  { value: 'relaxed', label: 'Relaxed' }
-                ]}
-                value={formData.preferences.cleanliness}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, cleanliness: e.target.value}})}
-              />
-              
-              <Select
-                label="Lifestyle"
-                options={[
-                  { value: 'quiet', label: 'Quiet' },
-                  { value: 'moderate', label: 'Moderate' },
-                  { value: 'social', label: 'Social' },
-                  { value: 'party', label: 'Party' }
-                ]}
-                value={formData.preferences.lifestyle}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, lifestyle: e.target.value}})}
-              />
             </>
           )}
-          <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-md font-semibold hover:bg-indigo-700 transition mt-2">
+
+          <button
+            type="submit"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: '#4f46e5',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontWeight: '600',
+              marginTop: '0.5rem'
+            }}
+          >
             {isLogin ? 'Login' : 'Sign Up'}
           </button>
         </form>
-        <p className="text-center mt-4 text-gray-600">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <button onClick={() => setIsLogin(!isLogin)} className="text-indigo-600 font-semibold hover:underline">
+
+        <p style={{ textAlign: 'center', marginTop: '1rem', color: '#6b7280' }}>
+          {isLogin ? "Don't have an account? " : 'Already have an account? '}
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#4f46e5',
+              fontWeight: '600',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
             {isLogin ? 'Sign Up' : 'Login'}
           </button>
         </p>
-      </Card>
-    </div>
-  );
-};
-
-// Browse Listings Page
-const BrowseListings = () => {
-  const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const { token } = useAuth();
-
-  const fetchListings = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_URL}/listings`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      
-      // Handle different response formats
-      if (Array.isArray(data)) {
-        setListings(data);
-      } else if (data.data && Array.isArray(data.data)) {
-        // Backend returns {success, count, data: []}
-        setListings(data.data);
-      } else {
-        console.error('Expected array but got:', data);
-        setListings([]);
-        setError(data.message || 'Failed to load listings');
-      }
-    } catch (err) {
-      console.error('Error fetching listings:', err);
-      setListings([]);
-      setError('Failed to load listings');
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
-  useEffect(() => {
-    fetchListings();
-  }, [fetchListings]);
-
-  if (loading) {
-    return <div className="text-center py-20 text-gray-600">Loading listings...</div>;
-  }
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Browse Listings</h1>
-      
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
-          {error}
-        </div>
-      )}
-      
-      {listings.length === 0 ? (
-        <Card className="p-8 text-center text-gray-600">
-          <p>No listings available yet. Be the first to create one!</p>
-        </Card>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listings.map(listing => (
-            <Card key={listing._id} className="overflow-hidden hover:shadow-xl transition">
-              <div className="h-48 bg-gradient-to-br from-indigo-400 to-purple-500"></div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">{listing.title}</h3>
-                <p className="text-sm text-gray-500 mb-2">{listing.propertyType}</p>
-                <div className="flex items-center text-gray-600 mb-2">
-                  <MapPin size={16} className="mr-1" />
-                  <span className="text-sm">{listing.location.city}, {listing.location.state}</span>
-                </div>
-                <div className="flex items-center text-indigo-600 font-bold text-xl mb-4">
-                  <DollarSign size={20} />
-                  <span>{listing.rentAmount}/month</span>
-                </div>
-                <div className="flex space-x-4 text-sm text-gray-600 mb-4">
-                  <div className="flex items-center">
-                    <Bed size={16} className="mr-1" />
-                    <span>{listing.roomDetails.bedrooms} bed</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Bath size={16} className="mr-1" />
-                    <span>{listing.roomDetails.bathrooms} bath</span>
-                  </div>
-                </div>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Calendar size={16} className="mr-1" />
-                  <span>Available: {new Date(listing.roomDetails.availableFrom).toLocaleDateString()}</span>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Create Listing Page
-const CreateListing = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    propertyType: 'apartment',
-    rentAmount: 0,
-    location: {
-      address: '',
-      city: '',
-      state: '',
-      zipCode: ''
-    },
-    amenities: [],
-    roomDetails: {
-      bedrooms: 1,
-      bathrooms: 1,
-      furnished: false,
-      availableFrom: new Date().toISOString().split('T')[0]
-    },
-    preferences: {
-      gender: 'no-preference',
-      smoking: 'no-preference',
-      pets: 'no'
-    }
-  });
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
-  const { token } = useAuth();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess(false);
-    try {
-      const res = await fetch(`${API_URL}/listings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      
-      if (!res.ok) {
-        // Show the actual error message from backend
-        console.error('Backend error:', data);
-        throw new Error(data.message || data.error || 'Failed to create listing');
-      }
-      
-      setSuccess(true);
-      setFormData({
-        title: '',
-        description: '',
-        propertyType: 'apartment',
-        rentAmount: 0,
-        location: { address: '', city: '', state: '', zipCode: '' },
-        amenities: [],
-        roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
-        preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
-      });
-    } catch (err) {
-      console.error('Error creating listing:', err);
-      setError(err.message);
-    }
-  };
-
-  return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">Create New Listing</h1>
-      <Card className="p-8">
-        {success && (
-          <div className="bg-green-50 text-green-600 p-3 rounded mb-4">
-            Listing created successfully!
-          </div>
-        )}
-        {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded mb-4">
-            {error}
-          </div>
-        )}
-        <form onSubmit={handleSubmit}>
-          <h3 className="text-xl font-semibold mb-4 text-gray-700">Property Details</h3>
-          
-          <Input
-            label="Listing Title"
-            type="text"
-            placeholder="e.g., Spacious 2BR apartment in Downtown"
-            value={formData.title}
-            onChange={(e) => setFormData({...formData, title: e.target.value})}
-            required
-          />
-          
-          <Select
-            label="Property Type"
-            options={[
-              { value: 'apartment', label: 'Apartment' },
-              { value: 'house', label: 'House' },
-              { value: 'condo', label: 'Condo' },
-              { value: 'townhouse', label: 'Townhouse' },
-              { value: 'studio', label: 'Studio' }
-            ]}
-            value={formData.propertyType}
-            onChange={(e) => setFormData({...formData, propertyType: e.target.value})}
-          />
-          
-          <Input
-            label="Monthly Rent ($)"
-            type="number"
-            value={formData.rentAmount}
-            onChange={(e) => setFormData({...formData, rentAmount: parseInt(e.target.value) || 0})}
-            required
-          />
-          
-          <Input
-            label="Address"
-            type="text"
-            value={formData.location.address}
-            onChange={(e) => setFormData({...formData, location: {...formData.location, address: e.target.value}})}
-            required
-          />
-          
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="City"
-              type="text"
-              value={formData.location.city}
-              onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
-              required
-            />
-            <Input
-              label="State"
-              type="text"
-              value={formData.location.state}
-              onChange={(e) => setFormData({...formData, location: {...formData.location, state: e.target.value}})}
-              required
-            />
-          </div>
-          
-          <Input
-            label="Zip Code"
-            type="text"
-            value={formData.location.zipCode}
-            onChange={(e) => setFormData({...formData, location: {...formData.location, zipCode: e.target.value}})}
-            required
-          />
-
-          <h3 className="text-xl font-semibold mb-4 mt-6 text-gray-700">Room Details</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Bedrooms"
-              type="number"
-              min="1"
-              value={formData.roomDetails.bedrooms}
-              onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, bedrooms: parseInt(e.target.value)}})}
-              required
-            />
-            <Input
-              label="Bathrooms"
-              type="number"
-              min="1"
-              value={formData.roomDetails.bathrooms}
-              onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, bathrooms: parseInt(e.target.value)}})}
-              required
-            />
-          </div>
-          <Input
-            label="Available From"
-            type="date"
-            value={formData.roomDetails.availableFrom}
-            onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, availableFrom: e.target.value}})}
-            required
-          />
-          <div className="mb-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.roomDetails.furnished}
-                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, furnished: e.target.checked}})}
-                className="mr-2"
-              />
-              <span className="text-sm font-medium text-gray-700">Furnished</span>
-            </label>
-          </div>
-
-          <h3 className="text-xl font-semibold mb-4 mt-6 text-gray-700">Description</h3>
-          <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-4"
-            rows="4"
-            value={formData.description}
-            onChange={(e) => setFormData({...formData, description: e.target.value})}
-            placeholder="Describe your property and ideal roommate..."
-            required
-          />
-
-          <button type="submit" className="w-full bg-indigo-600 text-white py-3 rounded-md font-semibold hover:bg-indigo-700 transition">
-            Create Listing
-          </button>
-        </form>
-      </Card>
-    </div>
-  );
-};
-
-// Dashboard Page
-const Dashboard = () => {
-  const [listings, setListings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const { token } = useAuth();
-
-  const fetchMyListings = useCallback(async () => {
-    try {
-      const res = await fetch(`${API_URL}/listings/user/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      
-      // Handle different response formats
-      if (Array.isArray(data)) {
-        setListings(data);
-      } else if (data.data && Array.isArray(data.data)) {
-        // Backend returns {success, count, data: []}
-        setListings(data.data);
-      } else {
-        console.error('Expected array but got:', data);
-        setListings([]);
-        setError(data.message || 'Failed to load your listings');
-      }
-    } catch (err) {
-      console.error('Error fetching listings:', err);
-      setListings([]);
-      setError('Failed to load your listings');
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
-  useEffect(() => {
-    fetchMyListings();
-  }, [fetchMyListings]);
-
-  const deleteListing = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this listing?')) return;
-    try {
-      await fetch(`${API_URL}/listings/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setListings(listings.filter(l => l._id !== id));
-    } catch (err) {
-      console.error('Error deleting listing:', err);
-    }
-  };
-
-  if (loading) {
-    return <div className="text-center py-20 text-gray-600">Loading your listings...</div>;
-  }
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">My Listings</h1>
-      
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
-          {error}
-        </div>
-      )}
-      
-      {listings.length === 0 ? (
-        <Card className="p-8 text-center text-gray-600">
-          <p className="mb-4">You haven't created any listings yet.</p>
-          <button className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700">
-            Create Your First Listing
-          </button>
-        </Card>
-      ) : (
-        <div className="grid md:grid-cols-2 gap-6">
-          {listings.map(listing => (
-            <Card key={listing._id} className="p-6">
-              <h3 className="text-xl font-semibold mb-2">{listing.title}</h3>
-              <p className="text-sm text-gray-500 mb-2">{listing.propertyType}</p>
-              <p className="text-gray-600 mb-2">{listing.location.city}, {listing.location.state}</p>
-              <p className="text-indigo-600 font-bold text-xl mb-4">${listing.rentAmount}/month</p>
-              <p className="text-gray-700 mb-4 line-clamp-2">{listing.description}</p>
-              <div className="flex space-x-2">
-                <button className="flex-1 bg-indigo-100 text-indigo-600 py-2 rounded hover:bg-indigo-200">
-                  Edit
-                </button>
-                <button onClick={() => deleteListing(listing._id)} className="flex-1 bg-red-100 text-red-600 py-2 rounded hover:bg-red-200">
-                  Delete
-                </button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 };
@@ -806,48 +1206,55 @@ const ProfilePage = () => {
   const { user } = useAuth();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">My Profile</h1>
-      <Card className="p-8">
-        <div className="flex items-center mb-6">
-          <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center text-white text-3xl font-bold mr-4">
+    <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>My Profile</h1>
+      <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', padding: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{
+            width: '5rem',
+            height: '5rem',
+            backgroundColor: '#4f46e5',
+            borderRadius: '9999px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '1.875rem',
+            fontWeight: 'bold',
+            marginRight: '1rem'
+          }}>
             {user?.name?.charAt(0).toUpperCase()}
           </div>
           <div>
-            <h2 className="text-2xl font-semibold">{user?.name}</h2>
-            <p className="text-gray-600">{user?.email}</p>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>{user?.name}</h2>
+            <p style={{ color: '#6b7280' }}>{user?.email}</p>
           </div>
         </div>
-        <div className="border-t pt-6">
-          <h3 className="text-xl font-semibold mb-4">Preferences</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+
+        <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Preferences</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.875rem' }}>
             <div>
-              <span className="font-medium text-gray-700">Location:</span>
-              <p className="text-gray-600">{user?.location?.city ? `${user.location.city}, ${user.location.state} ${user.location.zipCode}` : 'Not specified'}</p>
+              <span style={{ fontWeight: '500', color: '#374151' }}>Location:</span>
+              <p style={{ color: '#6b7280' }}>
+                {user?.location?.city ? `${user.location.city}, ${user.location.state}` : 'Not specified'}
+              </p>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Budget Range:</span>
-              <p className="text-gray-600">${user?.budget?.min || 0} - ${user?.budget?.max || 0}</p>
+              <span style={{ fontWeight: '500', color: '#374151' }}>Budget:</span>
+              <p style={{ color: '#6b7280' }}>${user?.budget?.min || 0} - ${user?.budget?.max || 0}</p>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Gender Preference:</span>
-              <p className="text-gray-600">{user?.preferences?.gender || 'Any'}</p>
+              <span style={{ fontWeight: '500', color: '#374151' }}>Smoking:</span>
+              <p style={{ color: '#6b7280' }}>{user?.preferences?.smoking || 'No'}</p>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Smoking:</span>
-              <p className="text-gray-600">{user?.preferences?.smoking || 'No'}</p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Pets:</span>
-              <p className="text-gray-600">{user?.preferences?.pets || 'No'}</p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Lifestyle:</span>
-              <p className="text-gray-600">{user?.preferences?.lifestyle || 'Balanced'}</p>
+              <span style={{ fontWeight: '500', color: '#374151' }}>Pets:</span>
+              <p style={{ color: '#6b7280' }}>{user?.preferences?.pets || 'No'}</p>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
@@ -855,38 +1262,47 @@ const ProfilePage = () => {
 // Main App
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
+  const [editingListing, setEditingListing] = useState(null);
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f9fafb' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '4rem',
+            height: '4rem',
+            border: '2px solid #4f46e5',
+            borderTopColor: 'transparent',
+            borderRadius: '9999px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }} />
+          <p style={{ color: '#6b7280' }}>Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Redirect to auth if trying to access protected pages
-  if (!user && ['browse', 'create', 'dashboard', 'profile'].includes(currentPage)) {
+  if (!user && ['matches', 'browse', 'create', 'dashboard', 'profile', 'edit'].includes(currentPage)) {
     setCurrentPage('auth');
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
       <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
       {currentPage === 'home' && <LandingPage setCurrentPage={setCurrentPage} />}
       {currentPage === 'auth' && <AuthPage />}
+      {currentPage === 'matches' && <MatchesPage />}
       {currentPage === 'browse' && <BrowseListings />}
-      {currentPage === 'create' && <CreateListing />}
-      {currentPage === 'dashboard' && <Dashboard />}
+      {currentPage === 'create' && <ListingForm setEditingListing={setEditingListing} setCurrentPage={setCurrentPage} />}
+      {currentPage === 'edit' && <ListingForm editingListing={editingListing} setEditingListing={setEditingListing} setCurrentPage={setCurrentPage} />}
+      {currentPage === 'dashboard' && <Dashboard setCurrentPage={setCurrentPage} setEditingListing={setEditingListing} />}
       {currentPage === 'profile' && <ProfilePage />}
     </div>
   );
 };
 
-// Root component with Auth Provider
 export default function RootApp() {
   return (
     <AuthProvider>

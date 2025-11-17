@@ -8,18 +8,19 @@ const {
   deleteListing,
   getMyListings
 } = require('../controllers/listingController');
+const { getMatches, searchListings } = require('../controllers/matchingController');
 const { protect } = require('../middleware/auth');
 
-router.route('/')
-  .get(getAllListings)
-  .post(protect, createListing);
+// Public routes
+router.get('/', getAllListings);
+router.get('/search', searchListings);
+router.get('/:id', getListing);
 
-router.route('/user/me')
-  .get(protect, getMyListings);
-
-router.route('/:id')
-  .get(getListing)
-  .put(protect, updateListing)
-  .delete(protect, deleteListing);
+// Protected routes
+router.post('/', protect, createListing);
+router.get('/user/me', protect, getMyListings);
+router.get('/matches/me', protect, getMatches);
+router.put('/:id', protect, updateListing);
+router.delete('/:id', protect, deleteListing);
 
 module.exports = router;
