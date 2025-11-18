@@ -132,3 +132,42 @@ exports.getMyListings = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// @desc    Upload images to listing
+// @route   POST /api/listings/:id/upload-images
+// @access  Private
+exports.uploadImages = async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+
+    if (!listing) {
+      return res.status(404).json({ message: 'Listing not found' });
+    }
+
+    // Check ownership
+    if (listing.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    const cloudinary = require('cloudinary').v2;
+    const imageUrls = [];
+
+    // Upload each image
+    for (const file of req.files) {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: 'roommate-finder'
+      });
+      imageUrls.push(result.secure_url);
+    }
+
+    listing.images = [...listing.images, ...imageUrls];
+    await listing.save();
+
+    res.json({
+      success: true,
+      data: listing
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -518,10 +518,24 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
       overflow: 'hidden',
       transition: 'box-shadow 0.2s'
     }}>
-      <div style={{
-        height: '12rem',
-        background: 'linear-gradient(to bottom right, #818cf8, #a855f7)'
-      }} />
+
+
+      {listing.images && listing.images.length > 0 ? (
+  <img
+    src={listing.images[0]}
+    alt={listing.title}
+    style={{
+      height: '12rem',
+      width: '100%',
+      objectFit: 'cover'
+    }}
+  />
+) : (
+  <div style={{
+    height: '12rem',
+    background: 'linear-gradient(to bottom right, #818cf8, #a855f7)'
+  }} />
+)}
       <div style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>{listing.title}</h3>
@@ -876,41 +890,78 @@ const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
     roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
     preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
   });
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const { token } = useAuth();
 
+  const handleImageChange = (e) => {
+  const files = Array.from(e.target.files);
+  setImageFiles(files);
+  
+  // Generate previews
+  const previews = files.map(file => URL.createObjectURL(file));
+  setImagePreviews(previews);
+};
+
+const uploadImages = async (listingId) => {
+  if (imageFiles.length === 0) return;
+  
+  const formData = new FormData();
+  imageFiles.forEach(file => {
+    formData.append('images', file);
+  });
+  
+  try {
+    await fetch(`${API_URL}/listings/${listingId}/upload-images`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData
+    });
+  } catch (err) {
+    console.error('Image upload failed:', err);
+  }
+};
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess(false);
-    try {
-      const url = editingListing ? `${API_URL}/listings/${editingListing._id}` : `${API_URL}/listings`;
-      const method = editingListing ? 'PUT' : 'POST';
-      
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to save listing');
-      }
-      
-      setSuccess(true);
-      setTimeout(() => {
-        setEditingListing(null);
-        setCurrentPage('dashboard');
-      }, 1500);
-    } catch (err) {
-      setError(err.message);
+  e.preventDefault();
+  setError('');
+  setSuccess(false);
+  try {
+    const url = editingListing ? `${API_URL}/listings/${editingListing._id}` : `${API_URL}/listings`;
+    const method = editingListing ? 'PUT' : 'POST';
+    
+    const res = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(formData)
+    });
+    
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.message || 'Failed to save listing');
     }
-  };
+    
+    const result = await res.json();
+    
+    // Upload images if new listing
+    if (!editingListing && imageFiles.length > 0) {
+      await uploadImages(result.data._id);
+    }
+    
+    setSuccess(true);
+    setTimeout(() => {
+      setEditingListing(null);
+      setCurrentPage('dashboard');
+    }, 1500);
+  } catch (err) {
+    setError(err.message);
+  }
+};
 
   return (
     <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
@@ -1070,6 +1121,31 @@ const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
+    Property Images (Max 5)
+  </label>
+  <input
+    type="file"
+    multiple
+    accept="image/*"
+    onChange={handleImageChange}
+    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+  />
+  {imagePreviews.length > 0 && (
+    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+      {imagePreviews.map((preview, idx) => (
+        <img
+          key={idx}
+          src={preview}
+          alt={`Preview ${idx + 1}`}
+          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '0.375rem' }}
+        />
+      ))}
+    </div>
+  )}
+</div>
 
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
@@ -2054,11 +2130,314 @@ const MessagingPage = () => {
   );
 };
 
+// Listing Detail Page Component
+const ListingDetailPage = ({ listingId, setCurrentPage }) => {
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const { token } = useAuth();
+
+  useEffect(() => {
+    const fetchListing = async () => {
+      try {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch(`${API_URL}/listings/${listingId}`, { headers });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.message || 'Failed to load listing');
+        
+        setListing(data.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (listingId) fetchListing();
+  }, [listingId, token]);
+
+  if (loading) {
+    return (
+      <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem', textAlign: 'center' }}>
+        <p style={{ color: '#6b7280' }}>Loading listing...</p>
+      </div>
+    );
+  }
+
+  if (error || !listing) {
+    return (
+      <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
+        <div style={{ padding: '1rem', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '0.375rem', marginBottom: '1rem' }}>
+          {error || 'Listing not found'}
+        </div>
+        <button
+          onClick={() => setCurrentPage('browse')}
+          style={{
+            padding: '0.5rem 1.5rem',
+            backgroundColor: '#4f46e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.375rem',
+            cursor: 'pointer',
+            fontWeight: '600'
+          }}
+        >
+          Back to Browse
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <button
+        onClick={() => setCurrentPage('browse')}
+        style={{
+          padding: '0.5rem 1.5rem',
+          backgroundColor: '#e5e7eb',
+          color: '#374151',
+          border: 'none',
+          borderRadius: '0.375rem',
+          cursor: 'pointer',
+          fontWeight: '600',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}
+      >
+        ← Back to Listings
+      </button>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+        {/* Main Content */}
+        <div>
+          {/* Hero Section - Placeholder for images */}
+          <div style={{
+            height: '24rem',
+            background: 'linear-gradient(to bottom right, #818cf8, #a855f7)',
+            borderRadius: '0.5rem',
+            marginBottom: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '1.5rem',
+            fontWeight: '600'
+          }}>
+            Property Images (Coming Soon)
+          </div>
+
+          {/* Title & Price */}
+          <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+              <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>{listing.title}</h1>
+              {listing.compatibility && (
+                <CompatibilityBadge score={listing.compatibility.score} />
+              )}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', color: '#4f46e5', fontWeight: 'bold', fontSize: '2rem', marginBottom: '1rem' }}>
+              <span>₹{listing.rentAmount}</span>
+              <span style={{ fontSize: '1rem', fontWeight: 'normal', color: '#6b7280', marginLeft: '0.5rem' }}>/month</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', color: '#6b7280', fontSize: '1rem' }}>
+              <MapPin size={20} style={{ marginRight: '0.5rem' }} />
+              <span>{listing.location.address}, {listing.location.city}, {listing.location.state} - {listing.location.zipCode}</span>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>Description</h2>
+            <p style={{ color: '#374151', lineHeight: '1.6' }}>{listing.description}</p>
+          </div>
+
+          {/* Room Details */}
+          <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>Room Details</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Bed size={20} color="#4f46e5" />
+                <span><strong>{listing.roomDetails.bedrooms}</strong> Bedroom{listing.roomDetails.bedrooms > 1 ? 's' : ''}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Bath size={20} color="#4f46e5" />
+                <span><strong>{listing.roomDetails.bathrooms}</strong> Bathroom{listing.roomDetails.bathrooms > 1 ? 's' : ''}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Calendar size={20} color="#4f46e5" />
+                <span>Available: <strong>{new Date(listing.roomDetails.availableFrom).toLocaleDateString()}</strong></span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span>{listing.roomDetails.furnished ? '✅' : '❌'} {listing.roomDetails.furnished ? 'Furnished' : 'Unfurnished'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Amenities */}
+          {listing.amenities && listing.amenities.length > 0 && (
+            <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>Amenities</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.75rem' }}>
+                {listing.amenities.map((amenity, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ color: '#10b981' }}>✓</span>
+                    <span>{amenity}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Preferences */}
+          {listing.preferences && (
+            <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>Roommate Preferences</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.875rem' }}>
+                <div>
+                  <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>Gender Preference:</span>
+                  <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                    {listing.preferences?.gender?.replace('-', ' ') || 'No preference'}
+                  </p>
+                </div>
+                <div>
+                  <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>Smoking:</span>
+                  <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                    {listing.preferences?.smoking?.replace('-', ' ') || 'Not specified'}
+                  </p>
+                </div>
+                <div>
+                  <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>Pets:</span>
+                  <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                    {listing.preferences?.pets || 'Not specified'}
+                  </p>
+                </div>
+                <div>
+                  <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>Lifestyle:</span>
+                  <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                    {listing.preferences?.lifestyle || 'Not specified'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <button
+  onClick={() => {
+    window.scrollTo(0, 0);
+    window.contactUser = listing.user._id;
+    window.contactListing = listing._id;
+    window.triggerPageChange('messages');
+  }}
+  style={{
+    padding: '0.75rem 1.5rem',
+    backgroundColor: '#4f46e5',
+    color: 'white',
+    border: 'none',
+    borderRadius: '0.375rem',
+    cursor: 'pointer',
+    fontWeight: '600',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem'
+  }}
+>
+  <MessageCircle size={18} />
+  Message Owner
+</button>
+        </div>
+
+        {/* Sidebar */}
+        <div>
+          {/* Owner Card */}
+          <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '1.5rem', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', position: 'sticky', top: '5rem' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Contact Owner</h3>
+            {listing.user && (
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{
+                  width: '3rem',
+                  height: '3rem',
+                  backgroundColor: '#4f46e5',
+                  borderRadius: '9999px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  marginBottom: '0.5rem'
+                }}>
+                  {listing.user.name?.charAt(0).toUpperCase()}
+                </div>
+                <p style={{ fontWeight: '600', margin: 0 }}>{listing.user.name}</p>
+                <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>{listing.user.email}</p>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                window.scrollTo(0, 0);
+                window.contactUser = listing.user._id;
+                window.contactListing = listing._id;
+                window.triggerPageChange('messages');
+              }}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                backgroundColor: '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                marginBottom: '0.5rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <MessageCircle size={18} />
+              Message Owner
+            </button>
+            {listing.user && (
+              <button
+                onClick={() => {
+                  window.viewUserProfile = listing.user._id;
+                  window.triggerPageChange('viewUser');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  backgroundColor: '#e0e7ff',
+                  color: '#4f46e5',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <User size={18} />
+                View Profile
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [editingListing, setEditingListing] = useState(null);
   const [viewingUserId, setViewingUserId] = useState(null);
+  const [selectedListingId, setSelectedListingId] = useState(null);
   const { user, loading, isNewUser } = useAuth();
 
   useEffect(() => {
@@ -2079,6 +2458,9 @@ const App = () => {
       setCurrentPage('viewUser');
     } else if (page === 'messages') {
       setCurrentPage('messages');
+    } else if (page === 'listingDetail' && window.selectedListingId) {
+      setSelectedListingId(window.selectedListingId);
+      setCurrentPage('listingDetail');
     }
   };
 }, []);
@@ -2120,6 +2502,7 @@ const App = () => {
       {currentPage === 'editProfile' && <EditProfilePage setCurrentPage={setCurrentPage} />}
       {currentPage === 'viewUser' && <ViewUserProfile userId={viewingUserId} setCurrentPage={setCurrentPage} />}
       {currentPage === 'messages' && <MessagingPage />}
+      {currentPage === 'listingDetail' && <ListingDetailPage listingId={selectedListingId} setCurrentPage={setCurrentPage} />}
     </div>
   );
 };
