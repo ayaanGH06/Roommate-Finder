@@ -32,6 +32,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [isNewUser, setIsNewUser] = useState(false);
 
   const fetchCurrentUser = useCallback(async () => {
     try {
@@ -70,6 +71,7 @@ const AuthProvider = ({ children }) => {
     if (!res.ok) throw new Error(data.message || 'Login failed');
     localStorage.setItem('token', data.token);
     setToken(data.token);
+    setIsNewUser(false);
     return data;
   };
 
@@ -83,6 +85,7 @@ const AuthProvider = ({ children }) => {
     if (!res.ok) throw new Error(data.message || 'Registration failed');
     localStorage.setItem('token', data.token);
     setToken(data.token);
+    setIsNewUser(true);
     return data;
   };
 
@@ -93,7 +96,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, token }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, token, isNewUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -1347,8 +1350,8 @@ const EditProfilePage = ({ setCurrentPage }) => {
       lifestyle: user?.preferences?.lifestyle || 'moderate'
     },
     budget: {
-      min: user?.budget?.min || 0,
-      max: user?.budget?.max || 5000
+      min: user?.budget?.min || '',
+      max: user?.budget?.max || ''
     },
     location: {
       city: user?.location?.city || '',
@@ -1457,16 +1460,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
             </div>
           </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Zip Code</label>
-            <input
-              type="text"
-              required
-              value={formData.location.zipCode}
-              onChange={(e) => setFormData({...formData, location: {...formData.location, zipCode: e.target.value}})}
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-            />
-          </div>
+          
 
           {/* Budget */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
@@ -1476,7 +1470,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
                 type="number"
                 required
                 value={formData.budget.min}
-                onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value) || 0}})}
+                onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value) || ''}})}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1486,7 +1480,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
                 type="number"
                 required
                 value={formData.budget.max}
-                onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value) || 0}})}
+                onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value) || ''}})}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1720,7 +1714,7 @@ const ViewUserProfile = ({ userId, setCurrentPage }) => {
             <div>
               <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>📍 Location:</span>
               <p style={{ color: '#6b7280', margin: 0 }}>
-                {profile.location?.city ? `${profile.location.city}, ${profile.location.state} ${profile.location.zipCode}` : 'Not specified'}
+                {profile.location?.city ? `${profile.location.city}, ${profile.location.state}` : 'Not specified'}
               </p>
             </div>
 
@@ -2065,7 +2059,17 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [editingListing, setEditingListing] = useState(null);
   const [viewingUserId, setViewingUserId] = useState(null);
-  const { user, loading } = useAuth();
+  const { user, loading, isNewUser } = useAuth();
+
+  useEffect(() => {
+  if (user && currentPage === 'auth') {
+    if (isNewUser) {
+      setCurrentPage('editProfile'); // New users fill out preferences
+    } else {
+      setCurrentPage('browse'); // Existing users go to browse
+    }
+  }
+}, [user, isNewUser, currentPage]);
 
   // Setup global page change trigger
   useEffect(() => {
