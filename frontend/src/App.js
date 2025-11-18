@@ -1224,13 +1224,303 @@ const AuthPage = () => {
   );
 };
 
+// Edit Profile Page
+const EditProfilePage = ({ setCurrentPage }) => {
+  const { user, token } = useAuth();
+  const [formData, setFormData] = useState({
+    name: user?.name || '',
+    preferences: {
+      gender: user?.preferences?.gender || 'no-preference',
+      smoking: user?.preferences?.smoking || 'no',
+      pets: user?.preferences?.pets || 'no',
+      cleanliness: user?.preferences?.cleanliness || 'moderate',
+      lifestyle: user?.preferences?.lifestyle || 'moderate'
+    },
+    budget: {
+      min: user?.budget?.min || 0,
+      max: user?.budget?.max || 5000
+    },
+    location: {
+      city: user?.location?.city || '',
+      state: user?.location?.state || '',
+      zipCode: user?.location?.zipCode || ''
+    }
+  });
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess(false);
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API_URL}/auth/update-profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to update profile');
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        window.location.reload(); // Refresh to get updated user data
+      }, 1500);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>Edit Profile</h1>
+
+      <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', padding: '2rem' }}>
+        {success && (
+          <div style={{ padding: '0.75rem', backgroundColor: '#f0fdf4', color: '#16a34a', borderRadius: '0.375rem', marginBottom: '1rem' }}>
+            Profile updated successfully! Refreshing...
+          </div>
+        )}
+        {error && (
+          <div style={{ padding: '0.75rem', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '0.375rem', marginBottom: '1rem' }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          {/* Name */}
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Name</label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
+          {/* Location */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
+              <input
+                list="edit-states"
+                required
+                value={formData.location.state}
+                onChange={(e) => {
+                  setFormData({...formData, location: {...formData.location, state: e.target.value, city: ''}});
+                }}
+                placeholder="Select or type state"
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+              <datalist id="edit-states">
+                {INDIAN_STATES.map(state => <option key={state} value={state} />)}
+              </datalist>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+              <input
+                list="edit-cities"
+                required
+                value={formData.location.city}
+                onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
+                placeholder="Select or type city"
+                disabled={!formData.location.state}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+              <datalist id="edit-cities">
+                {CITIES_BY_STATE[formData.location.state]?.map(city => <option key={city} value={city} />)}
+              </datalist>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Zip Code</label>
+            <input
+              type="text"
+              required
+              value={formData.location.zipCode}
+              onChange={(e) => setFormData({...formData, location: {...formData.location, zipCode: e.target.value}})}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+          </div>
+
+          {/* Budget */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Min Budget (₹)</label>
+              <input
+                type="number"
+                required
+                value={formData.budget.min}
+                onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value) || 0}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Max Budget (₹)</label>
+              <input
+                type="number"
+                required
+                value={formData.budget.max}
+                onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value) || 0}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+            </div>
+          </div>
+
+          {/* Preferences */}
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', marginTop: '1.5rem' }}>Preferences</h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Gender Preference</label>
+              <select
+                value={formData.preferences.gender}
+                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, gender: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+                <option value="no-preference">No Preference</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Smoking</label>
+              <select
+                value={formData.preferences.smoking}
+                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, smoking: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+                <option value="occasionally">Occasionally</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Pets</label>
+              <select
+                value={formData.preferences.pets}
+                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, pets: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+                <option value="negotiable">Negotiable</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Cleanliness</label>
+              <select
+                value={formData.preferences.cleanliness}
+                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, cleanliness: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="very-clean">Very Clean</option>
+                <option value="clean">Clean</option>
+                <option value="moderate">Moderate</option>
+                <option value="relaxed">Relaxed</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Lifestyle</label>
+              <select
+                value={formData.preferences.lifestyle}
+                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, lifestyle: e.target.value}})}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              >
+                <option value="quiet">Quiet</option>
+                <option value="moderate">Moderate</option>
+                <option value="social">Social</option>
+                <option value="party">Party</option>
+              </select>
+            </div>
+          </div>
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                flex: 1,
+                padding: '0.75rem',
+                backgroundColor: loading ? '#9ca3af' : '#4f46e5',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              {loading ? 'Updating...' : 'Update Profile'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentPage('profile')}
+              style={{
+                padding: '0.75rem 1.5rem',
+                backgroundColor: '#e5e7eb',
+                color: '#374151',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
 // Profile Page
-const ProfilePage = () => {
+// Profile Page
+const ProfilePage = ({ setCurrentPage }) => {
   const { user } = useAuth();
 
   return (
     <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
-      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>My Profile</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', margin: 0 }}>My Profile</h1>
+        <button
+          onClick={() => setCurrentPage('editProfile')}
+          style={{
+            padding: '0.5rem 1.5rem',
+            backgroundColor: '#4f46e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.375rem',
+            cursor: 'pointer',
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}
+        >
+          <Edit size={18} />
+          Edit Profile
+        </button>
+      </div>
       <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', padding: '2rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div style={{
@@ -1317,7 +1607,8 @@ const App = () => {
       {currentPage === 'create' && <ListingForm setEditingListing={setEditingListing} setCurrentPage={setCurrentPage} />}
       {currentPage === 'edit' && <ListingForm editingListing={editingListing} setEditingListing={setEditingListing} setCurrentPage={setCurrentPage} />}
       {currentPage === 'dashboard' && <Dashboard setCurrentPage={setCurrentPage} setEditingListing={setEditingListing} />}
-      {currentPage === 'profile' && <ProfilePage />}
+      {currentPage === 'profile' && <ProfilePage setCurrentPage={setCurrentPage} />}
+      {currentPage === 'editProfile' && <EditProfilePage setCurrentPage={setCurrentPage} />}
     </div>
   );
 };
