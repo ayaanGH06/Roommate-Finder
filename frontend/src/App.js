@@ -499,7 +499,6 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
           <span>Available: {new Date(listing.roomDetails.availableFrom).toLocaleDateString()}</span>
         </div>
 
-        {(onEdit || onDelete) && (
          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
           {/* View Profile button (always visible) */}
           {listing.user && (
@@ -565,7 +564,6 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
             </button>
           )}
         </div>
-        )}
       </div>
     </div>
   );
