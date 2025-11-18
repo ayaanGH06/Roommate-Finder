@@ -500,42 +500,71 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
         </div>
 
         {(onEdit || onDelete) && (
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-            {onEdit && (
-              <button
-                onClick={() => onEdit(listing)}
-                style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                  backgroundColor: '#e0e7ff',
-                  color: '#4f46e5',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}
-              >
-                Edit
-              </button>
-            )}
-            {onDelete && (
-              <button
-                onClick={() => onDelete(listing._id)}
-                style={{
-                  flex: 1,
-                  padding: '0.5rem',
-                  backgroundColor: '#fee2e2',
-                  color: '#dc2626',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}
-              >
-                Delete
-              </button>
-            )}
-          </div>
+         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+          {/* View Profile button (always visible) */}
+          {listing.user && (
+            <button
+              onClick={() => {
+                window.scrollTo(0, 0);
+                window.viewUserProfile = listing.user._id;
+                window.triggerPageChange('viewUser');
+              }}
+              style={{
+                flex: onEdit || onDelete ? 0 : 1,
+                padding: '0.5rem',
+                backgroundColor: '#e0e7ff',
+                color: '#4f46e5',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.25rem'
+              }}
+            >
+              <User size={16} />
+              View Profile
+            </button>
+          )}
+          
+          {/* Edit/Delete buttons (only for owner) */}
+          {onEdit && (
+            <button
+              onClick={() => onEdit(listing)}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                backgroundColor: '#e0e7ff',
+                color: '#4f46e5',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Edit
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={() => onDelete(listing._id)}
+              style={{
+                flex: 1,
+                padding: '0.5rem',
+                backgroundColor: '#fee2e2',
+                color: '#dc2626',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              Delete
+            </button>
+          )}
+        </div>
         )}
       </div>
     </div>
@@ -1493,7 +1522,174 @@ const EditProfilePage = ({ setCurrentPage }) => {
     </div>
   );
 };
-// Profile Page
+
+// View Other User's Profile Component
+const ViewUserProfile = ({ userId, setCurrentPage }) => {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(`${API_URL}/auth/user/${userId}`);
+        const data = await res.json();
+        
+        if (!res.ok) {
+          throw new Error(data.message || 'Failed to load profile');
+        }
+        
+        setProfile(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    if (userId) {
+      fetchProfile();
+    }
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem', textAlign: 'center' }}>
+        <p style={{ color: '#6b7280' }}>Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
+        <div style={{ padding: '1rem', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '0.375rem', marginBottom: '1rem' }}>
+          {error}
+        </div>
+        <button
+          onClick={() => setCurrentPage('browse')}
+          style={{
+            padding: '0.5rem 1.5rem',
+            backgroundColor: '#4f46e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.375rem',
+            cursor: 'pointer',
+            fontWeight: '600'
+          }}
+        >
+          Back to Browse
+        </button>
+      </div>
+    );
+  }
+
+  if (!profile) return null;
+
+  return (
+    <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
+      <button
+        onClick={() => setCurrentPage('browse')}
+        style={{
+          padding: '0.5rem 1.5rem',
+          backgroundColor: '#e5e7eb',
+          color: '#374151',
+          border: 'none',
+          borderRadius: '0.375rem',
+          cursor: 'pointer',
+          fontWeight: '600',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}
+      >
+        ← Back to Listings
+      </button>
+
+      <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', padding: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{
+            width: '5rem',
+            height: '5rem',
+            backgroundColor: '#4f46e5',
+            borderRadius: '9999px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '1.875rem',
+            fontWeight: 'bold',
+            marginRight: '1rem'
+          }}>
+            {profile.name?.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>{profile.name}</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+              Member since {new Date(profile.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </div>
+
+        <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Roommate Preferences</h3>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', fontSize: '0.875rem' }}>
+            <div>
+              <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>📍 Location:</span>
+              <p style={{ color: '#6b7280', margin: 0 }}>
+                {profile.location?.city ? `${profile.location.city}, ${profile.location.state} ${profile.location.zipCode}` : 'Not specified'}
+              </p>
+            </div>
+
+            <div>
+              <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>💰 Budget Range:</span>
+              <p style={{ color: '#6b7280', margin: 0 }}>
+                ₹{profile.budget?.min || 0} - ₹{profile.budget?.max || 0}
+              </p>
+            </div>
+
+            <div>
+              <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>👤 Gender Preference:</span>
+              <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                {profile.preferences?.gender?.replace('-', ' ') || 'Not specified'}
+              </p>
+            </div>
+
+            <div>
+              <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>🚬 Smoking:</span>
+              <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                {profile.preferences?.smoking || 'Not specified'}
+              </p>
+            </div>
+
+            <div>
+              <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>🐾 Pets:</span>
+              <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                {profile.preferences?.pets || 'Not specified'}
+              </p>
+            </div>
+
+            <div>
+              <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>🧹 Cleanliness:</span>
+              <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                {profile.preferences?.cleanliness?.replace('-', ' ') || 'Not specified'}
+              </p>
+            </div>
+
+            <div>
+              <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>🎉 Lifestyle:</span>
+              <p style={{ color: '#6b7280', margin: 0, textTransform: 'capitalize' }}>
+                {profile.preferences?.lifestyle || 'Not specified'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 // Profile Page
 const ProfilePage = ({ setCurrentPage }) => {
   const { user } = useAuth();
@@ -1572,7 +1768,18 @@ const ProfilePage = ({ setCurrentPage }) => {
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [editingListing, setEditingListing] = useState(null);
+  const [viewingUserId, setViewingUserId] = useState(null);
   const { user, loading } = useAuth();
+
+  // Setup global page change trigger
+  useEffect(() => {
+    window.triggerPageChange = (page) => {
+      if (page === 'viewUser' && window.viewUserProfile) {
+        setViewingUserId(window.viewUserProfile);
+        setCurrentPage('viewUser');
+      }
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -1609,6 +1816,7 @@ const App = () => {
       {currentPage === 'dashboard' && <Dashboard setCurrentPage={setCurrentPage} setEditingListing={setEditingListing} />}
       {currentPage === 'profile' && <ProfilePage setCurrentPage={setCurrentPage} />}
       {currentPage === 'editProfile' && <EditProfilePage setCurrentPage={setCurrentPage} />}
+      {currentPage === 'viewUser' && <ViewUserProfile userId={viewingUserId} setCurrentPage={setCurrentPage} />}
     </div>
   );
 };

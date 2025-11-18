@@ -121,3 +121,46 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password -email');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      preferences: user.preferences,
+      budget: user.budget,
+      location: user.location,
+      createdAt: user.createdAt
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Return only public information
+    res.json({
+      _id: user._id,
+      name: user.name,
+      preferences: user.preferences,
+      budget: user.budget,
+      location: user.location,
+      createdAt: user.createdAt
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
