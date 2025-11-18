@@ -1,6 +1,6 @@
 import './App.css';
-import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
-import { Home, List, PlusCircle, User, LogOut, Search, DollarSign, MapPin, Bed, Bath, Calendar, Filter, Heart, Edit } from 'lucide-react';
+import React, { useState, useEffect, createContext, useContext, useCallback, useRef } from 'react';
+import { Home, List, PlusCircle, User, LogOut, Search, DollarSign, MapPin, Bed, Bath, Calendar, Filter, Heart, Edit, MessageCircle, Send } from 'lucide-react';
 
 // API Configuration
 const API_URL = 'http://localhost:5001/api';
@@ -120,7 +120,27 @@ const CompatibilityBadge = ({ score }) => {
 
 // Navbar Component
 const Navbar = ({ currentPage, setCurrentPage }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user && token) {
+      const fetchUnread = async () => {
+        try {
+          const res = await fetch(`${API_URL}/messages/unread-count`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          setUnreadCount(data.count || 0);
+        } catch (err) {
+          console.error('Error fetching unread:', err);
+        }
+      };
+      fetchUnread();
+      const interval = setInterval(fetchUnread, 5000); // Poll every 5s
+      return () => clearInterval(interval);
+    }
+  }, [user, token]);
 
   return (
     <nav style={{ 
@@ -191,6 +211,41 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                   <Search size={18} />
                   <span>Browse</span>
                 </button>
+<button 
+  onClick={() => setCurrentPage('messages')} 
+  style={{ 
+    padding: '0.5rem 0.75rem',
+    borderRadius: '0.375rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    background: 'none',
+    border: 'none',
+    color: 'white',
+    cursor: 'pointer',
+    position: 'relative'
+  }}
+  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+>
+  <MessageCircle size={18} />
+  <span>Messages</span>
+  {unreadCount > 0 && (
+    <span style={{
+      position: 'absolute',
+      top: '-0.25rem',
+      right: '-0.25rem',
+      backgroundColor: '#ef4444',
+      color: 'white',
+      borderRadius: '9999px',
+      padding: '0.125rem 0.375rem',
+      fontSize: '0.75rem',
+      fontWeight: 'bold'
+    }}>
+      {unreadCount}
+    </span>
+  )}
+</button>
                 <button 
                   onClick={() => setCurrentPage('create')} 
                   style={{ 
@@ -501,32 +556,59 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
 
          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
           {/* View Profile button (always visible) */}
-          {listing.user && (
-            <button
-              onClick={() => {
-                window.scrollTo(0, 0);
-                window.viewUserProfile = listing.user._id;
-                window.triggerPageChange('viewUser');
-              }}
-              style={{
-                flex: onEdit || onDelete ? 0 : 1,
-                padding: '0.5rem',
-                backgroundColor: '#e0e7ff',
-                color: '#4f46e5',
-                border: 'none',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.25rem'
-              }}
-            >
-              <User size={16} />
-              View Profile
-            </button>
-          )}
+         {listing.user && (
+  <>
+    <button
+      onClick={() => {
+        window.scrollTo(0, 0);
+        window.viewUserProfile = listing.user._id;
+        window.triggerPageChange('viewUser');
+      }}
+      style={{
+        flex: onEdit || onDelete ? 0 : 1,
+        padding: '0.5rem',
+        backgroundColor: '#e0e7ff',
+        color: '#4f46e5',
+        border: 'none',
+        borderRadius: '0.375rem',
+        cursor: 'pointer',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.25rem'
+      }}
+    >
+      <User size={16} />
+      View Profile
+    </button>
+    <button
+      onClick={() => {
+        window.scrollTo(0, 0);
+        window.contactUser = listing.user._id;
+        window.contactListing = listing._id;
+        window.triggerPageChange('messages');
+      }}
+      style={{
+        flex: onEdit || onDelete ? 0 : 1,
+        padding: '0.5rem',
+        backgroundColor: '#e0e7ff',
+        color: '#4f46e5',
+        border: 'none',
+        borderRadius: '0.375rem',
+        cursor: 'pointer',
+        fontWeight: '600',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '0.25rem'
+      }}
+    >
+      <MessageCircle size={16} />
+      Contact
+    </button>
+  </>
+)}
           
           {/* Edit/Delete buttons (only for owner) */}
           {onEdit && (
@@ -786,7 +868,7 @@ const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
     title: '',
     description: '',
     propertyType: 'apartment',
-    rentAmount: 0,
+    rentAmount: '',
     location: { address: '', city: '', state: '', zipCode: '' },
     roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
     preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
@@ -1097,7 +1179,7 @@ const LandingPage = ({ setCurrentPage }) => {
 
 // Auth Page (simplified version)
 const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -1108,6 +1190,7 @@ const AuthPage = () => {
   });
   const [error, setError] = useState('');
   const { login, register } = useAuth();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1762,6 +1845,221 @@ const ProfilePage = ({ setCurrentPage }) => {
   );
 };
 
+// Messaging Component
+const MessagingPage = () => {
+  const [conversations, setConversations] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const { token, user } = useAuth();
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(scrollToBottom, [messages]);
+
+  useEffect(() => {
+    // Handle contact from listing
+    if (window.contactUser) {
+      setSelectedUser({ _id: window.contactUser, name: 'Loading...' });
+      window.contactUser = null;
+    }
+  }, []);
+
+  const fetchConversations = async () => {
+    try {
+      const res = await fetch(`${API_URL}/messages/conversations`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setConversations(data.data || []);
+    } catch (err) {
+      console.error('Error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMessages = async (userId) => {
+    try {
+      const res = await fetch(`${API_URL}/messages/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setMessages(data.data || []);
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchConversations();
+    const interval = setInterval(fetchConversations, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (selectedUser) {
+      fetchMessages(selectedUser._id);
+      const interval = setInterval(() => fetchMessages(selectedUser._id), 3000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedUser]);
+
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedUser) return;
+    
+    try {
+      await fetch(`${API_URL}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          recipient: selectedUser._id,
+          content: newMessage,
+          listingId: window.contactListing || null
+        })
+      });
+      window.contactListing = null;
+      setNewMessage('');
+      fetchMessages(selectedUser._id);
+      fetchConversations();
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  };
+
+  return (
+    <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem', height: 'calc(100vh - 4rem)' }}>
+      <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>Messages</h1>
+      
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem', height: 'calc(100% - 4rem)', backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', overflow: 'hidden' }}>
+        {/* Conversations List */}
+        <div style={{ borderRight: '1px solid #e5e7eb', overflowY: 'auto' }}>
+          {loading ? (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
+          ) : conversations.length === 0 ? (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+              <MessageCircle size={48} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
+              <p>No conversations yet</p>
+            </div>
+          ) : (
+            conversations.map(conv => (
+              <div
+                key={conv._id._id}
+                onClick={() => setSelectedUser(conv._id)}
+                style={{
+                  padding: '1rem',
+                  borderBottom: '1px solid #e5e7eb',
+                  cursor: 'pointer',
+                  backgroundColor: selectedUser?._id === conv._id._id ? '#f3f4f6' : 'white'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                  <div>
+                    <p style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{conv._id.name}</p>
+                    <p style={{ fontSize: '0.875rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {conv.lastMessage.content}
+                    </p>
+                  </div>
+                  {conv.unreadCount > 0 && (
+                    <span style={{
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      borderRadius: '9999px',
+                      padding: '0.125rem 0.5rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {conv.unreadCount}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Messages Thread */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {selectedUser ? (
+            <>
+              <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>{selectedUser.name}</h3>
+              </div>
+              
+              <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
+                {messages.map(msg => (
+                  <div
+                    key={msg._id}
+                    style={{
+                      marginBottom: '1rem',
+                      display: 'flex',
+                      justifyContent: msg.sender._id === user._id ? 'flex-end' : 'flex-start'
+                    }}
+                  >
+                    <div style={{
+                      maxWidth: '70%',
+                      padding: '0.75rem 1rem',
+                      borderRadius: '0.5rem',
+                      backgroundColor: msg.sender._id === user._id ? '#4f46e5' : '#f3f4f6',
+                      color: msg.sender._id === user._id ? 'white' : '#1f2937'
+                    }}>
+                      <p style={{ margin: 0, wordBreak: 'break-word' }}>{msg.content}</p>
+                      <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', opacity: 0.7 }}>
+                        {new Date(msg.createdAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+
+              <form onSubmit={handleSend} style={{ padding: '1rem', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '0.5rem' }}>
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a message..."
+                  style={{ flex: 1, padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    backgroundColor: '#4f46e5',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <Send size={18} />
+                  Send
+                </button>
+              </form>
+            </>
+          ) : (
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
+              <p>Select a conversation to start messaging</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Main App
 const App = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -1771,13 +2069,15 @@ const App = () => {
 
   // Setup global page change trigger
   useEffect(() => {
-    window.triggerPageChange = (page) => {
-      if (page === 'viewUser' && window.viewUserProfile) {
-        setViewingUserId(window.viewUserProfile);
-        setCurrentPage('viewUser');
-      }
-    };
-  }, []);
+  window.triggerPageChange = (page) => {
+    if (page === 'viewUser' && window.viewUserProfile) {
+      setViewingUserId(window.viewUserProfile);
+      setCurrentPage('viewUser');
+    } else if (page === 'messages') {
+      setCurrentPage('messages');
+    }
+  };
+}, []);
 
   if (loading) {
     return (
@@ -1815,6 +2115,7 @@ const App = () => {
       {currentPage === 'profile' && <ProfilePage setCurrentPage={setCurrentPage} />}
       {currentPage === 'editProfile' && <EditProfilePage setCurrentPage={setCurrentPage} />}
       {currentPage === 'viewUser' && <ViewUserProfile userId={viewingUserId} setCurrentPage={setCurrentPage} />}
+      {currentPage === 'messages' && <MessagingPage />}
     </div>
   );
 };

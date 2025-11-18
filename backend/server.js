@@ -13,10 +13,12 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const listingRoutes = require('./routes/listingRoutes');
+const messageRoutes = require('./routes/messageRoutes');
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
