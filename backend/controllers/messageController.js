@@ -19,7 +19,9 @@ exports.sendMessage = async (req, res) => {
 
 exports.getConversations = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const mongoose = require('mongoose');
+    const userId = mongoose.Types.ObjectId(req.user.id);
+    
     const conversations = await Message.aggregate([
       { $match: { $or: [{ sender: userId }, { recipient: userId }] } },
       { $sort: { createdAt: -1 } },
@@ -48,14 +50,15 @@ exports.getConversations = async (req, res) => {
     await User.populate(conversations, { path: '_id lastMessage.sender lastMessage.recipient', select: 'name' });
     res.json({ success: true, data: conversations });
   } catch (error) {
+    console.error('Conversations error:', error);
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.getMessages = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const otherUserId = req.params.userId;
+    const mongoose = require('mongoose');
+    const userId = mongoose.Types.ObjectId(req.user.id);
+    const otherUserId = mongoose.Types.ObjectId(req.params.userId);
     
     const messages = await Message.find({
       $or: [
@@ -74,10 +77,10 @@ exports.getMessages = async (req, res) => {
     
     res.json({ success: true, data: messages });
   } catch (error) {
+    console.error('Get messages error:', error);
     res.status(500).json({ message: error.message });
   }
 };
-
 exports.getUnreadCount = async (req, res) => {
   try {
     const count = await Message.countDocuments({

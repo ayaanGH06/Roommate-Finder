@@ -520,25 +520,49 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
     }}>
 
 
-      {listing.images && listing.images.length > 0 ? (
-  <img
-    src={listing.images[0]}
-    alt={listing.title}
-    style={{
+ <div 
+  onClick={() => {
+    window.scrollTo(0, 0);
+    window.selectedListingId = listing._id;
+    window.triggerPageChange('listingDetail');
+  }}
+  style={{ cursor: 'pointer' }}
+>
+  {listing.images && listing.images.length > 0 ? (
+    <img
+      src={listing.images[0]}
+      alt={listing.title}
+      style={{
+        height: '12rem',
+        width: '100%',
+        objectFit: 'cover'
+      }}
+    />
+  ) : (
+    <div style={{
       height: '12rem',
-      width: '100%',
-      objectFit: 'cover'
-    }}
-  />
-) : (
-  <div style={{
-    height: '12rem',
-    background: 'linear-gradient(to bottom right, #818cf8, #a855f7)'
-  }} />
-)}
+      background: 'linear-gradient(to bottom right, #818cf8, #a855f7)'
+    }} />
+  )}
+</div>
       <div style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', margin: 0 }}>{listing.title}</h3>
+          <h3 
+  onClick={() => {
+    window.scrollTo(0, 0);
+    window.selectedListingId = listing._id;
+    window.triggerPageChange('listingDetail');
+  }}
+  style={{ 
+    fontSize: '1.25rem', 
+    fontWeight: '600', 
+    margin: 0,
+    cursor: 'pointer',
+    color: '#4f46e5'
+  }}
+>
+  {listing.title}
+</h3>
           {showCompatibility && listing.compatibility && (
             <CompatibilityBadge score={listing.compatibility.score} />
           )}
@@ -624,6 +648,7 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
       <MessageCircle size={16} />
       Contact
     </button>
+    
   </>
 )}
           
@@ -881,15 +906,22 @@ const Dashboard = ({ setCurrentPage, setEditingListing }) => {
 
 // Create/Edit Listing Form
 const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
-  const [formData, setFormData] = useState(editingListing || {
-    title: '',
-    description: '',
-    propertyType: 'apartment',
-    rentAmount: '',
-    location: { address: '', city: '', state: '', zipCode: '' },
-    roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
-    preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
-  });
+  const [formData, setFormData] = useState(editingListing ? {
+  ...editingListing,
+  roomDetails: {
+    ...editingListing.roomDetails,
+    bedrooms: editingListing.roomDetails?.bedrooms || 1,
+    bathrooms: editingListing.roomDetails?.bathrooms || 1
+  }
+} : {
+  title: '',
+  description: '',
+  propertyType: 'apartment',
+  rentAmount: '',
+  location: { address: '', city: '', state: '', zipCode: '' },
+  roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
+  preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
+});
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [success, setSuccess] = useState(false);
@@ -924,7 +956,7 @@ const uploadImages = async (listingId) => {
   }
 };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setError('');
   setSuccess(false);
@@ -948,8 +980,8 @@ const uploadImages = async (listingId) => {
     
     const result = await res.json();
     
-    // Upload images if new listing
-    if (!editingListing && imageFiles.length > 0) {
+    // Upload images if new listing or if new images selected
+    if (imageFiles.length > 0) {
       await uploadImages(result.data._id);
     }
     
@@ -1063,6 +1095,31 @@ const uploadImages = async (listingId) => {
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
+
+          <div style={{ marginBottom: '1rem' }}>
+  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
+    Zip Code
+  </label>
+  <input
+    type="text"
+    required
+    value={formData.location.zipCode}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        location: { ...formData.location, zipCode: e.target.value }
+      })
+    }
+    placeholder="Enter ZIP Code"
+    style={{
+      width: '100%',
+      padding: '0.5rem',
+      border: '1px solid #d1d5db',
+      borderRadius: '0.375rem'
+    }}
+  />
+</div>
+
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div>
@@ -2214,20 +2271,56 @@ const ListingDetailPage = ({ listingId, setCurrentPage }) => {
         {/* Main Content */}
         <div>
           {/* Hero Section - Placeholder for images */}
-          <div style={{
-            height: '24rem',
-            background: 'linear-gradient(to bottom right, #818cf8, #a855f7)',
-            borderRadius: '0.5rem',
-            marginBottom: '2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '1.5rem',
-            fontWeight: '600'
-          }}>
-            Property Images (Coming Soon)
-          </div>
+          {/* Hero Section - Images */}
+{listing.images && listing.images.length > 0 ? (
+  <div style={{
+    height: '24rem',
+    borderRadius: '0.5rem',
+    marginBottom: '2rem',
+    overflow: 'hidden',
+    position: 'relative'
+  }}>
+    <img
+      src={listing.images[0]}
+      alt={listing.title}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover'
+      }}
+    />
+    {listing.images.length > 1 && (
+      <div style={{
+        position: 'absolute',
+        bottom: '1rem',
+        right: '1rem',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        color: 'white',
+        padding: '0.5rem 1rem',
+        borderRadius: '0.375rem',
+        fontSize: '0.875rem',
+        fontWeight: '600'
+      }}>
+        +{listing.images.length - 1} more photos
+      </div>
+    )}
+  </div>
+) : (
+  <div style={{
+    height: '24rem',
+    background: 'linear-gradient(to bottom right, #818cf8, #a855f7)',
+    borderRadius: '0.5rem',
+    marginBottom: '2rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'white',
+    fontSize: '1.5rem',
+    fontWeight: '600'
+  }}>
+    No Images Available
+  </div>
+)}
 
           {/* Title & Price */}
           <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>

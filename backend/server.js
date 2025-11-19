@@ -11,16 +11,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
-```
-
-**File: `backend/.env`** (create if doesn't exist)
-
-Add these lines (get free credentials from cloudinary.com):
-```
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-
 const app = express();
 
 // Middleware

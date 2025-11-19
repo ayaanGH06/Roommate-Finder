@@ -125,6 +125,7 @@ exports.getMatches = async (req, res) => {
 // @route   GET /api/listings/search
 // @access  Public
 exports.searchListings = async (req, res) => {
+  
   try {
     const {
       city,
@@ -141,7 +142,13 @@ exports.searchListings = async (req, res) => {
     } = req.query;
 
     // Build query
-    const query = { isActive: true };
+    // Build query
+const query = { isActive: true };
+
+// Exclude current user's listings if authenticated
+if (req.user) {
+  query.user = { $ne: req.user.id };
+}
 
     if (city) {
       query['location.city'] = new RegExp(city, 'i');
