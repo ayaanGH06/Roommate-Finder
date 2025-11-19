@@ -1,26 +1,34 @@
 const Message = require('../models/Message');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 exports.sendMessage = async (req, res) => {
   try {
     const { recipient, content, listingId } = req.body;
+    
+    console.log('Creating message:', { sender: req.user.id, recipient, content }); // Debug
+    
     const message = await Message.create({
       sender: req.user.id,
       recipient,
       content,
       listingId
     });
+    
     await message.populate('sender recipient', 'name');
+    
+    console.log('Message created:', message); // Debug
+    
     res.status(201).json({ success: true, data: message });
   } catch (error) {
+    console.error('Send message error:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
 exports.getConversations = async (req, res) => {
   try {
-    const mongoose = require('mongoose');
-    const userId = mongoose.Types.ObjectId(req.user.id);
+    const userId = new mongoose.Types.ObjectId(req.user.id);
     
     const conversations = await Message.aggregate([
       { $match: { $or: [{ sender: userId }, { recipient: userId }] } },
@@ -54,11 +62,15 @@ exports.getConversations = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 exports.getMessages = async (req, res) => {
   try {
-    const mongoose = require('mongoose');
-    const userId = mongoose.Types.ObjectId(req.user.id);
-    const otherUserId = mongoose.Types.ObjectId(req.params.userId);
+    console.log('Getting messages - User ID:', req.user.id, 'Other User ID:', req.params.userId); // Debug
+    
+    const userId = new mongoose.Types.ObjectId(req.user.id);
+    const otherUserId = new mongoose.Types.ObjectId(req.params.userId);
+    
+    console.log('Converted IDs:', { userId, otherUserId }); // Debug
     
     const messages = await Message.find({
       $or: [
@@ -69,6 +81,8 @@ exports.getMessages = async (req, res) => {
     .sort({ createdAt: 1 })
     .populate('sender recipient', 'name');
     
+    console.log('Found messages:', messages.length); // Debug
+    
     // Mark as read
     await Message.updateMany(
       { sender: otherUserId, recipient: userId, read: false },
@@ -78,9 +92,10 @@ exports.getMessages = async (req, res) => {
     res.json({ success: true, data: messages });
   } catch (error) {
     console.error('Get messages error:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
 exports.getUnreadCount = async (req, res) => {
   try {
     const count = await Message.countDocuments({
@@ -89,6 +104,7 @@ exports.getUnreadCount = async (req, res) => {
     });
     res.json({ success: true, count });
   } catch (error) {
+    console.error('Unread count error:', error);
     res.status(500).json({ message: error.message });
   }
 };

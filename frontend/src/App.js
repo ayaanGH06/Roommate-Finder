@@ -1979,6 +1979,7 @@ const MessagingPage = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  const [sendingMessage, setSendingMessage] = useState(false);
   const { token, user } = useAuth();
   const messagesEndRef = useRef(null);
 
@@ -1988,11 +1989,21 @@ const MessagingPage = () => {
 
   useEffect(scrollToBottom, [messages]);
 
+  // Handle contact from listing
   useEffect(() => {
-    // Handle contact from listing
     if (window.contactUser) {
-      setSelectedUser({ _id: window.contactUser, name: 'Loading...' });
-      window.contactUser = null;
+      console.log('Setting contact user:', window.contactUser);
+      // Fetch user details first
+      fetch(`${API_URL}/auth/user/${window.contactUser}`)
+        .then(res => res.json())
+        .then(data => {
+          setSelectedUser({ _id: data._id, name: data.name });
+          window.contactUser = null;
+        })
+        .catch(err => {
+          console.error('Error fetching contact user:', err);
+          window.contactUser = null;
+        });
     }
   }, []);
 
@@ -2001,32 +2012,44 @@ const MessagingPage = () => {
       const res = await fetch(`${API_URL}/messages/conversations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (!res.ok) throw new Error('Failed to fetch conversations');
       const data = await res.json();
+      console.log('Conversations:', data);
       setConversations(data.data || []);
     } catch (err) {
-      console.error('Error:', err);
+      console.error('Error fetching conversations:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const fetchMessages = async (userId) => {
-    try {
-      const res = await fetch(`${API_URL}/messages/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      setMessages(data.data || []);
-    } catch (err) {
-      console.error('Error:', err);
+  try {
+    console.log('Fetching messages for userId:', userId); // Debug log
+    const res = await fetch(`${API_URL}/messages/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    console.log('Response status:', res.status); // Debug log
+    
+    const data = await res.json();
+    console.log('Messages response:', data); // Debug log
+    
+    if (!res.ok) {
+      throw new Error(data.message || 'Failed to fetch messages');
     }
-  };
+    
+    setMessages(data.data || []);
+  } catch (err) {
+    console.error('Error fetching messages:', err);
+  }
+};
 
   useEffect(() => {
     fetchConversations();
     const interval = setInterval(fetchConversations, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -2036,31 +2059,38 @@ const MessagingPage = () => {
     }
   }, [selectedUser]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !selectedUser) return;
+const handleSend = async (e) => {
+  e.preventDefault();
+  if (!newMessage.trim() || !selectedUser) return;
+  
+  const messageContent = newMessage;
+  setNewMessage(''); // Clear input immediately
+  
+  try {
+    const res = await fetch(`${API_URL}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        recipient: selectedUser._id,
+        content: messageContent,
+        listingId: window.contactListing || null
+      })
+    });
     
-    try {
-      await fetch(`${API_URL}/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          recipient: selectedUser._id,
-          content: newMessage,
-          listingId: window.contactListing || null
-        })
-      });
+    if (res.ok) {
       window.contactListing = null;
-      setNewMessage('');
-      fetchMessages(selectedUser._id);
+      // Immediately fetch messages to show the new one
+      await fetchMessages(selectedUser._id);
       fetchConversations();
-    } catch (err) {
-      console.error('Error:', err);
     }
-  };
+  } catch (err) {
+    console.error('Error:', err);
+    setNewMessage(messageContent); // Restore message if failed
+  }
+};
 
   return (
     <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem', height: 'calc(100vh - 4rem)' }}>
@@ -2075,21 +2105,36 @@ const MessagingPage = () => {
             <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
               <MessageCircle size={48} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
               <p>No conversations yet</p>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Start a conversation by contacting a listing owner</p>
             </div>
           ) : (
             conversations.map(conv => (
               <div
                 key={conv._id._id}
-                onClick={() => setSelectedUser(conv._id)}
+                onClick={() => {
+                  console.log('Selected conversation:', conv._id);
+                  setSelectedUser(conv._id);
+                }}
                 style={{
                   padding: '1rem',
                   borderBottom: '1px solid #e5e7eb',
                   cursor: 'pointer',
-                  backgroundColor: selectedUser?._id === conv._id._id ? '#f3f4f6' : 'white'
+                  backgroundColor: selectedUser?._id === conv._id._id ? '#f3f4f6' : 'white',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedUser?._id !== conv._id._id) {
+                    e.currentTarget.style.backgroundColor = '#f9fafb';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedUser?._id !== conv._id._id) {
+                    e.currentTarget.style.backgroundColor = 'white';
+                  }
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                  <div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontWeight: '600', marginBottom: '0.25rem' }}>{conv._id.name}</p>
                     <p style={{ fontSize: '0.875rem', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {conv.lastMessage.content}
@@ -2102,7 +2147,8 @@ const MessagingPage = () => {
                       borderRadius: '9999px',
                       padding: '0.125rem 0.5rem',
                       fontSize: '0.75rem',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      marginLeft: '0.5rem'
                     }}>
                       {conv.unreadCount}
                     </span>
@@ -2117,54 +2163,71 @@ const MessagingPage = () => {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {selectedUser ? (
             <>
-              <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb' }}>
+              <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
                 <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>{selectedUser.name}</h3>
               </div>
               
-              <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-                {messages.map(msg => (
-                  <div
-                    key={msg._id}
-                    style={{
-                      marginBottom: '1rem',
-                      display: 'flex',
-                      justifyContent: msg.sender._id === user._id ? 'flex-end' : 'flex-start'
-                    }}
-                  >
-                    <div style={{
-                      maxWidth: '70%',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '0.5rem',
-                      backgroundColor: msg.sender._id === user._id ? '#4f46e5' : '#f3f4f6',
-                      color: msg.sender._id === user._id ? 'white' : '#1f2937'
-                    }}>
-                      <p style={{ margin: 0, wordBreak: 'break-word' }}>{msg.content}</p>
-                      <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', opacity: 0.7 }}>
-                        {new Date(msg.createdAt).toLocaleTimeString()}
-                      </p>
-                    </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', backgroundColor: '#f9fafb' }}>
+                {messages.length === 0 ? (
+                  <div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
+                    <p>No messages yet. Start the conversation!</p>
                   </div>
-                ))}
+                ) : (
+                  messages.map(msg => (
+                    <div
+                      key={msg._id}
+                      style={{
+                        marginBottom: '1rem',
+                        display: 'flex',
+                        justifyContent: msg.sender._id === user._id ? 'flex-end' : 'flex-start'
+                      }}
+                    >
+                      <div style={{
+                        maxWidth: '70%',
+                        padding: '0.75rem 1rem',
+                        borderRadius: '0.5rem',
+                        backgroundColor: msg.sender._id === user._id ? '#4f46e5' : 'white',
+                        color: msg.sender._id === user._id ? 'white' : '#1f2937',
+                        boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
+                      }}>
+                        <p style={{ margin: 0, wordBreak: 'break-word' }}>{msg.content}</p>
+                        <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', opacity: 0.7 }}>
+                          {new Date(msg.createdAt).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSend} style={{ padding: '1rem', borderTop: '1px solid #e5e7eb', display: 'flex', gap: '0.5rem' }}>
+              <form onSubmit={handleSend} style={{ padding: '1rem', borderTop: '1px solid #e5e7eb', backgroundColor: 'white', display: 'flex', gap: '0.5rem' }}>
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
-                  style={{ flex: 1, padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                  disabled={sendingMessage}
+                  style={{ 
+                    flex: 1, 
+                    padding: '0.75rem', 
+                    border: '1px solid #d1d5db', 
+                    borderRadius: '0.375rem',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#4f46e5'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                 />
                 <button
                   type="submit"
+                  disabled={sendingMessage || !newMessage.trim()}
                   style={{
                     padding: '0.75rem 1.5rem',
-                    backgroundColor: '#4f46e5',
+                    backgroundColor: sendingMessage || !newMessage.trim() ? '#9ca3af' : '#4f46e5',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0.375rem',
-                    cursor: 'pointer',
+                    cursor: sendingMessage || !newMessage.trim() ? 'not-allowed' : 'pointer',
                     fontWeight: '600',
                     display: 'flex',
                     alignItems: 'center',
@@ -2172,13 +2235,16 @@ const MessagingPage = () => {
                   }}
                 >
                   <Send size={18} />
-                  Send
+                  {sendingMessage ? 'Sending...' : 'Send'}
                 </button>
               </form>
             </>
           ) : (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
-              <p>Select a conversation to start messaging</p>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280', backgroundColor: '#f9fafb' }}>
+              <div style={{ textAlign: 'center' }}>
+                <MessageCircle size={64} style={{ margin: '0 auto 1rem', opacity: 0.3 }} />
+                <p>Select a conversation to start messaging</p>
+              </div>
             </div>
           )}
         </div>
