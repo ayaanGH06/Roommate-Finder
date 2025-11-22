@@ -146,9 +146,9 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
   }, [user, token]);
 
   return (
-    <nav style={{ 
-      position: 'sticky', 
-      top: 0, 
+    <nav style={{
+      position: 'sticky',
+      top: 0,
       zIndex: 50,
       backgroundColor: '#4f46e5',
       color: 'white',
@@ -157,13 +157,13 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
       <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '0 1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: '4rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-            <button 
-              onClick={() => setCurrentPage('home')} 
-              style={{ 
-                fontSize: '1.25rem', 
-                fontWeight: 'bold', 
-                display: 'flex', 
-                alignItems: 'center', 
+            <button
+              onClick={() => setCurrentPage('home')}
+              style={{
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
                 gap: '0.5rem',
                 background: 'none',
                 border: 'none',
@@ -176,9 +176,9 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
             </button>
             {user && (
               <div style={{ display: 'flex', gap: '1rem' }}>
-                <button 
-                  onClick={() => setCurrentPage('matches')} 
-                  style={{ 
+                <button
+                  onClick={() => setCurrentPage('matches')}
+                  style={{
                     padding: '0.5rem 0.75rem',
                     borderRadius: '0.375rem',
                     display: 'flex',
@@ -195,9 +195,9 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                   <Heart size={18} />
                   <span>Matches</span>
                 </button>
-                <button 
-                  onClick={() => setCurrentPage('browse')} 
-                  style={{ 
+                <button
+                  onClick={() => setCurrentPage('browse')}
+                  style={{
                     padding: '0.5rem 0.75rem',
                     borderRadius: '0.375rem',
                     display: 'flex',
@@ -214,44 +214,44 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                   <Search size={18} />
                   <span>Browse</span>
                 </button>
-<button 
-  onClick={() => setCurrentPage('messages')} 
-  style={{ 
-    padding: '0.5rem 0.75rem',
-    borderRadius: '0.375rem',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.25rem',
-    background: 'none',
-    border: 'none',
-    color: 'white',
-    cursor: 'pointer',
-    position: 'relative'
-  }}
-  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
-  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
->
-  <MessageCircle size={18} />
-  <span>Messages</span>
-  {unreadCount > 0 && (
-    <span style={{
-      position: 'absolute',
-      top: '-0.25rem',
-      right: '-0.25rem',
-      backgroundColor: '#ef4444',
-      color: 'white',
-      borderRadius: '9999px',
-      padding: '0.125rem 0.375rem',
-      fontSize: '0.75rem',
-      fontWeight: 'bold'
-    }}>
-      {unreadCount}
-    </span>
-  )}
-</button>
-                <button 
-                  onClick={() => setCurrentPage('create')} 
-                  style={{ 
+                <button
+                  onClick={() => setCurrentPage('messages')}
+                  style={{
+                    padding: '0.5rem 0.75rem',
+                    borderRadius: '0.375rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4338ca'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <MessageCircle size={18} />
+                  <span>Messages</span>
+                  {unreadCount > 0 && (
+                    <span style={{
+                      position: 'absolute',
+                      top: '-0.25rem',
+                      right: '-0.25rem',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      borderRadius: '9999px',
+                      padding: '0.125rem 0.375rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setCurrentPage('create')}
+                  style={{
                     padding: '0.5rem 0.75rem',
                     borderRadius: '0.375rem',
                     display: 'flex',
@@ -268,9 +268,9 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                   <PlusCircle size={18} />
                   <span>Create</span>
                 </button>
-                <button 
-                  onClick={() => setCurrentPage('dashboard')} 
-                  style={{ 
+                <button
+                  onClick={() => setCurrentPage('dashboard')}
+                  style={{
                     padding: '0.5rem 0.75rem',
                     borderRadius: '0.375rem',
                     display: 'flex',
@@ -293,9 +293,9 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             {user ? (
               <>
-                <button 
+                <button
                   onClick={() => setCurrentPage('profile')}
-                  style={{ 
+                  style={{
                     padding: '0.5rem 0.75rem',
                     borderRadius: '0.375rem',
                     display: 'flex',
@@ -312,9 +312,9 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                   <User size={18} />
                   <span>{user.name}</span>
                 </button>
-                <button 
+                <button
                   onClick={logout}
-                  style={{ 
+                  style={{
                     padding: '0.5rem 1rem',
                     borderRadius: '0.375rem',
                     display: 'flex',
@@ -334,9 +334,9 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
                 </button>
               </>
             ) : (
-              <button 
+              <button
                 onClick={() => setCurrentPage('auth')}
-                style={{ 
+                style={{
                   padding: '0.5rem 1rem',
                   borderRadius: '0.375rem',
                   backgroundColor: 'white',
@@ -396,7 +396,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
                 type="text"
                 placeholder="Enter city"
                 value={filters.city}
-                onChange={(e) => setFilters({...filters, city: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, city: e.target.value })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -407,7 +407,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
                 type="number"
                 placeholder="₹0"
                 value={filters.minRent}
-                onChange={(e) => setFilters({...filters, minRent: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, minRent: e.target.value })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -418,7 +418,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
                 type="number"
                 placeholder="₹5000"
                 value={filters.maxRent}
-                onChange={(e) => setFilters({...filters, maxRent: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, maxRent: e.target.value })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -427,7 +427,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Property Type</label>
               <select
                 value={filters.propertyType}
-                onChange={(e) => setFilters({...filters, propertyType: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, propertyType: e.target.value })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="">All Types</option>
@@ -443,7 +443,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Bedrooms</label>
               <select
                 value={filters.bedrooms}
-                onChange={(e) => setFilters({...filters, bedrooms: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, bedrooms: e.target.value })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="">Any</option>
@@ -458,7 +458,7 @@ const FilterPanel = ({ filters, setFilters, onApply }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Pets</label>
               <select
                 value={filters.pets}
-                onChange={(e) => setFilters({...filters, pets: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, pets: e.target.value })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="">Any</option>
@@ -520,49 +520,49 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
     }}>
 
 
- <div 
-  onClick={() => {
-    window.scrollTo(0, 0);
-    window.selectedListingId = listing._id;
-    window.triggerPageChange('listingDetail');
-  }}
-  style={{ cursor: 'pointer' }}
->
-  {listing.images && listing.images.length > 0 ? (
-    <img
-      src={listing.images[0]}
-      alt={listing.title}
-      style={{
-        height: '12rem',
-        width: '100%',
-        objectFit: 'cover'
-      }}
-    />
-  ) : (
-    <div style={{
-      height: '12rem',
-      background: 'linear-gradient(to bottom right, #818cf8, #a855f7)'
-    }} />
-  )}
-</div>
+      <div
+        onClick={() => {
+          window.scrollTo(0, 0);
+          window.selectedListingId = listing._id;
+          window.triggerPageChange('listingDetail');
+        }}
+        style={{ cursor: 'pointer' }}
+      >
+        {listing.images && listing.images.length > 0 ? (
+          <img
+            src={listing.images[0]}
+            alt={listing.title}
+            style={{
+              height: '12rem',
+              width: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        ) : (
+          <div style={{
+            height: '12rem',
+            background: 'linear-gradient(to bottom right, #818cf8, #a855f7)'
+          }} />
+        )}
+      </div>
       <div style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
-          <h3 
-  onClick={() => {
-    window.scrollTo(0, 0);
-    window.selectedListingId = listing._id;
-    window.triggerPageChange('listingDetail');
-  }}
-  style={{ 
-    fontSize: '1.25rem', 
-    fontWeight: '600', 
-    margin: 0,
-    cursor: 'pointer',
-    color: '#4f46e5'
-  }}
->
-  {listing.title}
-</h3>
+          <h3
+            onClick={() => {
+              window.scrollTo(0, 0);
+              window.selectedListingId = listing._id;
+              window.triggerPageChange('listingDetail');
+            }}
+            style={{
+              fontSize: '1.25rem',
+              fontWeight: '600',
+              margin: 0,
+              cursor: 'pointer',
+              color: '#4f46e5'
+            }}
+          >
+            {listing.title}
+          </h3>
           {showCompatibility && listing.compatibility && (
             <CompatibilityBadge score={listing.compatibility.score} />
           )}
@@ -595,63 +595,63 @@ const ListingCard = ({ listing, onEdit, onDelete, showCompatibility = false }) =
           <span>Available: {new Date(listing.roomDetails.availableFrom).toLocaleDateString()}</span>
         </div>
 
-         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
           {/* View Profile button (always visible) */}
-         {listing.user && (
-  <>
-    <button
-      onClick={() => {
-        window.scrollTo(0, 0);
-        window.viewUserProfile = listing.user._id;
-        window.triggerPageChange('viewUser');
-      }}
-      style={{
-        flex: onEdit || onDelete ? 0 : 1,
-        padding: '0.5rem',
-        backgroundColor: '#e0e7ff',
-        color: '#4f46e5',
-        border: 'none',
-        borderRadius: '0.375rem',
-        cursor: 'pointer',
-        fontWeight: '600',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.25rem'
-      }}
-    >
-      <User size={16} />
-      View Profile
-    </button>
-    <button
-      onClick={() => {
-        window.scrollTo(0, 0);
-        window.contactUser = listing.user._id;
-        window.contactListing = listing._id;
-        window.triggerPageChange('messages');
-      }}
-      style={{
-        flex: onEdit || onDelete ? 0 : 1,
-        padding: '0.5rem',
-        backgroundColor: '#e0e7ff',
-        color: '#4f46e5',
-        border: 'none',
-        borderRadius: '0.375rem',
-        cursor: 'pointer',
-        fontWeight: '600',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '0.25rem'
-      }}
-    >
-      <MessageCircle size={16} />
-      Contact
-    </button>
-    
-  </>
-)}
-          
+          {listing.user && (
+            <>
+              <button
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  window.viewUserProfile = listing.user._id;
+                  window.triggerPageChange('viewUser');
+                }}
+                style={{
+                  flex: onEdit || onDelete ? 0 : 1,
+                  padding: '0.5rem',
+                  backgroundColor: '#e0e7ff',
+                  color: '#4f46e5',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.25rem'
+                }}
+              >
+                <User size={16} />
+                View Profile
+              </button>
+              <button
+                onClick={() => {
+                  window.scrollTo(0, 0);
+                  window.contactUser = listing.user._id;
+                  window.contactListing = listing._id;
+                  window.triggerPageChange('messages');
+                }}
+                style={{
+                  flex: onEdit || onDelete ? 0 : 1,
+                  padding: '0.5rem',
+                  backgroundColor: '#e0e7ff',
+                  color: '#4f46e5',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.25rem'
+                }}
+              >
+                <MessageCircle size={16} />
+                Contact
+              </button>
+
+            </>
+          )}
+
           {/* Edit/Delete buttons (only for owner) */}
           {onEdit && (
             <button
@@ -723,7 +723,7 @@ const MatchesPage = () => {
   return (
     <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
       <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>Your Best Matches</h1>
-      
+
       {listings.length === 0 ? (
         <div style={{
           padding: '2rem',
@@ -787,7 +787,7 @@ const BrowseListings = () => {
   return (
     <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
       <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>Browse Listings</h1>
-      
+
       <FilterPanel filters={filters} setFilters={setFilters} onApply={fetchListings} />
 
       {loading ? (
@@ -863,7 +863,7 @@ const Dashboard = ({ setCurrentPage, setEditingListing }) => {
   return (
     <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem' }}>
       <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>My Listings</h1>
-      
+
       {listings.length === 0 ? (
         <div style={{
           padding: '2rem',
@@ -907,21 +907,21 @@ const Dashboard = ({ setCurrentPage, setEditingListing }) => {
 // Create/Edit Listing Form
 const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
   const [formData, setFormData] = useState(editingListing ? {
-  ...editingListing,
-  roomDetails: {
-    ...editingListing.roomDetails,
-    bedrooms: editingListing.roomDetails?.bedrooms || 1,
-    bathrooms: editingListing.roomDetails?.bathrooms || 1
-  }
-} : {
-  title: '',
-  description: '',
-  propertyType: 'apartment',
-  rentAmount: '',
-  location: { address: '', city: '', state: '', zipCode: '' },
-  roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
-  preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
-});
+    ...editingListing,
+    roomDetails: {
+      ...editingListing.roomDetails,
+      bedrooms: editingListing.roomDetails?.bedrooms || 1,
+      bathrooms: editingListing.roomDetails?.bathrooms || 1
+    }
+  } : {
+    title: '',
+    description: '',
+    propertyType: 'apartment',
+    rentAmount: '',
+    location: { address: '', city: '', state: '', zipCode: '' },
+    roomDetails: { bedrooms: 1, bathrooms: 1, furnished: false, availableFrom: new Date().toISOString().split('T')[0] },
+    preferences: { gender: 'no-preference', smoking: 'no-preference', pets: 'no' }
+  });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [success, setSuccess] = useState(false);
@@ -929,78 +929,78 @@ const ListingForm = ({ editingListing, setEditingListing, setCurrentPage }) => {
   const { token } = useAuth();
 
   const handleImageChange = (e) => {
-  const files = Array.from(e.target.files);
-  setImageFiles(files);
-  
-  // Generate previews
-  const previews = files.map(file => URL.createObjectURL(file));
-  setImagePreviews(previews);
-};
+    const files = Array.from(e.target.files);
+    setImageFiles(files);
 
-const uploadImages = async (listingId) => {
-  if (imageFiles.length === 0) return;
-  
-  const formData = new FormData();
-  imageFiles.forEach(file => {
-    formData.append('images', file);
-  });
-  
-  try {
-    await fetch(`${API_URL}/listings/${listingId}/upload-images`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData
-    });
-  } catch (err) {
-    console.error('Image upload failed:', err);
-  }
-};
+    // Generate previews
+    const previews = files.map(file => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setSuccess(false);
-  try {
-    const url = editingListing ? `${API_URL}/listings/${editingListing._id}` : `${API_URL}/listings`;
-    const method = editingListing ? 'PUT' : 'POST';
-    
-    const res = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(formData)
+  const uploadImages = async (listingId) => {
+    if (imageFiles.length === 0) return;
+
+    const formData = new FormData();
+    imageFiles.forEach(file => {
+      formData.append('images', file);
     });
-    
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.message || 'Failed to save listing');
+
+    try {
+      await fetch(`${API_URL}/listings/${listingId}/upload-images`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+    } catch (err) {
+      console.error('Image upload failed:', err);
     }
-    
-    const result = await res.json();
-    
-    // Upload images if new listing or if new images selected
-    if (imageFiles.length > 0) {
-      await uploadImages(result.data._id);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess(false);
+    try {
+      const url = editingListing ? `${API_URL}/listings/${editingListing._id}` : `${API_URL}/listings`;
+      const method = editingListing ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || 'Failed to save listing');
+      }
+
+      const result = await res.json();
+
+      // Upload images if new listing or if new images selected
+      if (imageFiles.length > 0) {
+        await uploadImages(result.data._id);
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        setEditingListing(null);
+        setCurrentPage('dashboard');
+      }, 1500);
+    } catch (err) {
+      setError(err.message);
     }
-    
-    setSuccess(true);
-    setTimeout(() => {
-      setEditingListing(null);
-      setCurrentPage('dashboard');
-    }, 1500);
-  } catch (err) {
-    setError(err.message);
-  }
-};
+  };
 
   return (
     <div style={{ maxWidth: '48rem', margin: '0 auto', padding: '2rem 1rem' }}>
       <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '2rem' }}>
         {editingListing ? 'Edit Listing' : 'Create New Listing'}
       </h1>
-      
+
       <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', padding: '2rem' }}>
         {success && (
           <div style={{ padding: '0.75rem', backgroundColor: '#f0fdf4', color: '#16a34a', borderRadius: '0.375rem', marginBottom: '1rem' }}>
@@ -1020,7 +1020,7 @@ const handleSubmit = async (e) => {
               type="text"
               required
               value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
@@ -1029,7 +1029,7 @@ const handleSubmit = async (e) => {
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Property Type</label>
             <select
               value={formData.propertyType}
-              onChange={(e) => setFormData({...formData, propertyType: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, propertyType: e.target.value })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             >
               <option value="apartment">Apartment</option>
@@ -1046,44 +1046,44 @@ const handleSubmit = async (e) => {
               type="number"
               required
               value={formData.rentAmount}
-              onChange={(e) => setFormData({...formData, rentAmount: parseInt(e.target.value) || 0})}
+              onChange={(e) => setFormData({ ...formData, rentAmount: parseInt(e.target.value) || 0 })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-  <div>
-    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
-    <input
-      list="listing-states"
-      required
-      value={formData.location.state}
-      onChange={(e) => {
-        setFormData({...formData, location: {...formData.location, state: e.target.value, city: ''}});
-      }}
-      placeholder="Select or type state"
-      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-    />
-    <datalist id="listing-states">
-      {INDIAN_STATES.map(state => <option key={state} value={state} />)}
-    </datalist>
-  </div>
-  <div>
-    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
-    <input
-      list="listing-cities"
-      required
-      value={formData.location.city}
-      onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
-      placeholder="Select or type city"
-      disabled={!formData.location.state}
-      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-    />
-    <datalist id="listing-cities">
-      {CITIES_BY_STATE[formData.location.state]?.map(city => <option key={city} value={city} />)}
-    </datalist>
-  </div>
-</div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
+              <input
+                list="listing-states"
+                required
+                value={formData.location.state}
+                onChange={(e) => {
+                  setFormData({ ...formData, location: { ...formData.location, state: e.target.value, city: '' } });
+                }}
+                placeholder="Select or type state"
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+              <datalist id="listing-states">
+                {INDIAN_STATES.map(state => <option key={state} value={state} />)}
+              </datalist>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+              <input
+                list="listing-cities"
+                required
+                value={formData.location.city}
+                onChange={(e) => setFormData({ ...formData, location: { ...formData.location, city: e.target.value } })}
+                placeholder="Select or type city"
+                disabled={!formData.location.state}
+                style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+              />
+              <datalist id="listing-cities">
+                {CITIES_BY_STATE[formData.location.state]?.map(city => <option key={city} value={city} />)}
+              </datalist>
+            </div>
+          </div>
 
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Address</label>
@@ -1091,34 +1091,34 @@ const handleSubmit = async (e) => {
               type="text"
               required
               value={formData.location.address}
-              onChange={(e) => setFormData({...formData, location: {...formData.location, address: e.target.value}})}
+              onChange={(e) => setFormData({ ...formData, location: { ...formData.location, address: e.target.value } })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
-    Zip Code
-  </label>
-  <input
-    type="text"
-    required
-    value={formData.location.zipCode}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        location: { ...formData.location, zipCode: e.target.value }
-      })
-    }
-    placeholder="Enter ZIP Code"
-    style={{
-      width: '100%',
-      padding: '0.5rem',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.375rem'
-    }}
-  />
-</div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
+              Zip Code
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.location.zipCode}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  location: { ...formData.location, zipCode: e.target.value }
+                })
+              }
+              placeholder="Enter ZIP Code"
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.375rem'
+              }}
+            />
+          </div>
 
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
@@ -1129,7 +1129,7 @@ const handleSubmit = async (e) => {
                 min="1"
                 required
                 value={formData.roomDetails.bedrooms}
-                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, bedrooms: parseInt(e.target.value)}})}
+                onChange={(e) => setFormData({ ...formData, roomDetails: { ...formData.roomDetails, bedrooms: parseInt(e.target.value) } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1140,7 +1140,7 @@ const handleSubmit = async (e) => {
                 min="1"
                 required
                 value={formData.roomDetails.bathrooms}
-                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, bathrooms: parseInt(e.target.value)}})}
+                onChange={(e) => setFormData({ ...formData, roomDetails: { ...formData.roomDetails, bathrooms: parseInt(e.target.value) } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1150,7 +1150,7 @@ const handleSubmit = async (e) => {
                 type="date"
                 required
                 value={formData.roomDetails.availableFrom}
-                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, availableFrom: e.target.value}})}
+                onChange={(e) => setFormData({ ...formData, roomDetails: { ...formData.roomDetails, availableFrom: e.target.value } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1161,7 +1161,7 @@ const handleSubmit = async (e) => {
               <input
                 type="checkbox"
                 checked={formData.roomDetails.furnished}
-                onChange={(e) => setFormData({...formData, roomDetails: {...formData.roomDetails, furnished: e.target.checked}})}
+                onChange={(e) => setFormData({ ...formData, roomDetails: { ...formData.roomDetails, furnished: e.target.checked } })}
                 style={{ marginRight: '0.5rem' }}
               />
               <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Furnished</span>
@@ -1174,35 +1174,35 @@ const handleSubmit = async (e) => {
               required
               rows="4"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
-    Property Images (Max 5)
-  </label>
-  <input
-    type="file"
-    multiple
-    accept="image/*"
-    onChange={handleImageChange}
-    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-  />
-  {imagePreviews.length > 0 && (
-    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-      {imagePreviews.map((preview, idx) => (
-        <img
-          key={idx}
-          src={preview}
-          alt={`Preview ${idx + 1}`}
-          style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '0.375rem' }}
-        />
-      ))}
-    </div>
-  )}
-</div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
+              Property Images (Max 5)
+            </label>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+            />
+            {imagePreviews.length > 0 && (
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                {imagePreviews.map((preview, idx) => (
+                  <img
+                    key={idx}
+                    src={preview}
+                    alt={`Preview ${idx + 1}`}
+                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '0.375rem' }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
@@ -1348,7 +1348,7 @@ const AuthPage = () => {
         <h2 style={{ fontSize: '1.875rem', fontWeight: 'bold', textAlign: 'center', marginBottom: '1.5rem' }}>
           {isLogin ? 'Welcome Back' : 'Create Account'}
         </h2>
-        
+
         {error && (
           <div style={{ padding: '0.75rem', backgroundColor: '#fef2f2', color: '#dc2626', borderRadius: '0.375rem', marginBottom: '1rem', fontSize: '0.875rem' }}>
             {error}
@@ -1363,7 +1363,7 @@ const AuthPage = () => {
                 type="text"
                 required
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1375,7 +1375,7 @@ const AuthPage = () => {
               type="email"
               required
               value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
@@ -1386,7 +1386,7 @@ const AuthPage = () => {
               type="password"
               required
               value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
@@ -1394,40 +1394,40 @@ const AuthPage = () => {
           {!isLogin && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginBottom: '1rem' }}>
-  <div>
-    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
-    <input
-      list="states"
-      required
-      value={formData.location.state}
-      onChange={(e) => {
-        setFormData({...formData, location: {...formData.location, state: e.target.value, city: ''}});
-      }}
-      placeholder="Select or type state"
-      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-    />
-    <datalist id="states">
-      {INDIAN_STATES.map(state => <option key={state} value={state} />)}
-    </datalist>
-  </div>
-  <div>
-    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
-    <input
-      list="cities"
-      required
-      value={formData.location.city}
-      onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
-      placeholder="Select or type city"
-      disabled={!formData.location.state}
-      style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
-    />
-    <datalist id="cities">
-      {CITIES_BY_STATE[formData.location.state]?.map(city => <option key={city} value={city} />)}
-    </datalist>
-  </div>
-</div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>State</label>
+                  <input
+                    list="states"
+                    required
+                    value={formData.location.state}
+                    onChange={(e) => {
+                      setFormData({ ...formData, location: { ...formData.location, state: e.target.value, city: '' } });
+                    }}
+                    placeholder="Select or type state"
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                  />
+                  <datalist id="states">
+                    {INDIAN_STATES.map(state => <option key={state} value={state} />)}
+                  </datalist>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>City</label>
+                  <input
+                    list="cities"
+                    required
+                    value={formData.location.city}
+                    onChange={(e) => setFormData({ ...formData, location: { ...formData.location, city: e.target.value } })}
+                    placeholder="Select or type city"
+                    disabled={!formData.location.state}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+                  />
+                  <datalist id="cities">
+                    {CITIES_BY_STATE[formData.location.state]?.map(city => <option key={city} value={city} />)}
+                  </datalist>
+                </div>
+              </div>
 
-              
+
             </>
           )}
 
@@ -1553,7 +1553,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
               type="text"
               required
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
             />
           </div>
@@ -1567,7 +1567,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
                 required
                 value={formData.location.state}
                 onChange={(e) => {
-                  setFormData({...formData, location: {...formData.location, state: e.target.value, city: ''}});
+                  setFormData({ ...formData, location: { ...formData.location, state: e.target.value, city: '' } });
                 }}
                 placeholder="Select or type state"
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
@@ -1582,7 +1582,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
                 list="edit-cities"
                 required
                 value={formData.location.city}
-                onChange={(e) => setFormData({...formData, location: {...formData.location, city: e.target.value}})}
+                onChange={(e) => setFormData({ ...formData, location: { ...formData.location, city: e.target.value } })}
                 placeholder="Select or type city"
                 disabled={!formData.location.state}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
@@ -1593,7 +1593,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
             </div>
           </div>
 
-          
+
 
           {/* Budget */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
@@ -1603,7 +1603,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
                 type="number"
                 required
                 value={formData.budget.min}
-                onChange={(e) => setFormData({...formData, budget: {...formData.budget, min: parseInt(e.target.value) || ''}})}
+                onChange={(e) => setFormData({ ...formData, budget: { ...formData.budget, min: parseInt(e.target.value) || '' } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1613,7 +1613,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
                 type="number"
                 required
                 value={formData.budget.max}
-                onChange={(e) => setFormData({...formData, budget: {...formData.budget, max: parseInt(e.target.value) || ''}})}
+                onChange={(e) => setFormData({ ...formData, budget: { ...formData.budget, max: parseInt(e.target.value) || '' } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               />
             </div>
@@ -1627,7 +1627,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Gender Preference</label>
               <select
                 value={formData.preferences.gender}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, gender: e.target.value}})}
+                onChange={(e) => setFormData({ ...formData, preferences: { ...formData.preferences, gender: e.target.value } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="male">Male</option>
@@ -1641,7 +1641,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Smoking</label>
               <select
                 value={formData.preferences.smoking}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, smoking: e.target.value}})}
+                onChange={(e) => setFormData({ ...formData, preferences: { ...formData.preferences, smoking: e.target.value } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="yes">Yes</option>
@@ -1654,7 +1654,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Pets</label>
               <select
                 value={formData.preferences.pets}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, pets: e.target.value}})}
+                onChange={(e) => setFormData({ ...formData, preferences: { ...formData.preferences, pets: e.target.value } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="yes">Yes</option>
@@ -1667,7 +1667,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Cleanliness</label>
               <select
                 value={formData.preferences.cleanliness}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, cleanliness: e.target.value}})}
+                onChange={(e) => setFormData({ ...formData, preferences: { ...formData.preferences, cleanliness: e.target.value } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="very-clean">Very Clean</option>
@@ -1681,7 +1681,7 @@ const EditProfilePage = ({ setCurrentPage }) => {
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>Lifestyle</label>
               <select
                 value={formData.preferences.lifestyle}
-                onChange={(e) => setFormData({...formData, preferences: {...formData.preferences, lifestyle: e.target.value}})}
+                onChange={(e) => setFormData({ ...formData, preferences: { ...formData.preferences, lifestyle: e.target.value } })}
                 style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
               >
                 <option value="quiet">Quiet</option>
@@ -1742,11 +1742,11 @@ const ViewUserProfile = ({ userId, setCurrentPage }) => {
       try {
         const res = await fetch(`${API_URL}/auth/user/${userId}`);
         const data = await res.json();
-        
+
         if (!res.ok) {
           throw new Error(data.message || 'Failed to load profile');
         }
-        
+
         setProfile(data);
       } catch (err) {
         setError(err.message);
@@ -1754,7 +1754,7 @@ const ViewUserProfile = ({ userId, setCurrentPage }) => {
         setLoading(false);
       }
     };
-    
+
     if (userId) {
       fetchProfile();
     }
@@ -1842,7 +1842,7 @@ const ViewUserProfile = ({ userId, setCurrentPage }) => {
 
         <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
           <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>Roommate Preferences</h3>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', fontSize: '0.875rem' }}>
             <div>
               <span style={{ fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.25rem' }}>📍 Location:</span>
@@ -2024,26 +2024,26 @@ const MessagingPage = () => {
   };
 
   const fetchMessages = async (userId) => {
-  try {
-    console.log('Fetching messages for userId:', userId); // Debug log
-    const res = await fetch(`${API_URL}/messages/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    
-    console.log('Response status:', res.status); // Debug log
-    
-    const data = await res.json();
-    console.log('Messages response:', data); // Debug log
-    
-    if (!res.ok) {
-      throw new Error(data.message || 'Failed to fetch messages');
+    try {
+      console.log('Fetching messages for userId:', userId); // Debug log
+      const res = await fetch(`${API_URL}/messages/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      console.log('Response status:', res.status); // Debug log
+
+      const data = await res.json();
+      console.log('Messages response:', data); // Debug log
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to fetch messages');
+      }
+
+      setMessages(data.data || []);
+    } catch (err) {
+      console.error('Error fetching messages:', err);
     }
-    
-    setMessages(data.data || []);
-  } catch (err) {
-    console.error('Error fetching messages:', err);
-  }
-};
+  };
 
   useEffect(() => {
     fetchConversations();
@@ -2059,46 +2059,51 @@ const MessagingPage = () => {
     }
   }, [selectedUser]);
 
-const handleSend = async (e) => {
-  e.preventDefault();
-  if (!newMessage.trim() || !selectedUser) return;
-  
-  const messageContent = newMessage;
-  setNewMessage(''); // Clear input immediately
-  
-  try {
-    const res = await fetch(`${API_URL}/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        recipient: selectedUser._id,
-        content: messageContent,
-        listingId: window.contactListing || null
-      })
-    });
-    
-    if (res.ok) {
-      window.contactListing = null;
-      // Immediately fetch messages to show the new one
-      await fetchMessages(selectedUser._id);
-      fetchConversations();
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedUser) return;
+
+    const messageContent = newMessage;
+    setNewMessage(''); // Clear input immediately
+
+    try {
+      const res = await fetch(`${API_URL}/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          recipient: selectedUser._id,
+          content: messageContent,
+          listingId: window.contactListing || null
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        window.contactListing = null;
+        // Immediately update messages state with the new message
+        setMessages(prev => [...prev, data.data]);
+        fetchConversations();
+      } else {
+        throw new Error(data.message || 'Failed to send message');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setNewMessage(messageContent); // Restore message if failed
+      alert('Failed to send message: ' + err.message);
     }
-  } catch (err) {
-    console.error('Error:', err);
-    setNewMessage(messageContent); // Restore message if failed
-  }
-};
+  };
 
   return (
     <div style={{ maxWidth: '80rem', margin: '0 auto', padding: '2rem 1rem', height: 'calc(100vh - 4rem)' }}>
       <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>Messages</h1>
-      
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem', height: 'calc(100% - 4rem)', backgroundColor: 'white', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', overflow: 'hidden' }}>
         {/* Conversations List */}
-        <div style={{ borderRight: '1px solid #e5e7eb', overflowY: 'auto' }}>
+        <div style={{ borderRight: '1px solid #e5e7eb', overflowY: 'auto', height: '100%' }}>
           {loading ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Loading...</div>
           ) : conversations.length === 0 ? (
@@ -2160,13 +2165,13 @@ const handleSend = async (e) => {
         </div>
 
         {/* Messages Thread */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
           {selectedUser ? (
             <>
               <div style={{ padding: '1rem', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f9fafb' }}>
                 <h3 style={{ fontSize: '1.125rem', fontWeight: '600', margin: 0 }}>{selectedUser.name}</h3>
               </div>
-              
+
               <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', backgroundColor: '#f9fafb' }}>
                 {messages.length === 0 ? (
                   <div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
@@ -2208,10 +2213,10 @@ const handleSend = async (e) => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
                   disabled={sendingMessage}
-                  style={{ 
-                    flex: 1, 
-                    padding: '0.75rem', 
-                    border: '1px solid #d1d5db', 
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem',
+                    border: '1px solid #d1d5db',
                     borderRadius: '0.375rem',
                     outline: 'none'
                   }}
@@ -2266,9 +2271,9 @@ const ListingDetailPage = ({ listingId, setCurrentPage }) => {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const res = await fetch(`${API_URL}/listings/${listingId}`, { headers });
         const data = await res.json();
-        
+
         if (!res.ok) throw new Error(data.message || 'Failed to load listing');
-        
+
         setListing(data.data);
       } catch (err) {
         setError(err.message);
@@ -2276,7 +2281,7 @@ const ListingDetailPage = ({ listingId, setCurrentPage }) => {
         setLoading(false);
       }
     };
-    
+
     if (listingId) fetchListing();
   }, [listingId, token]);
 
@@ -2338,55 +2343,55 @@ const ListingDetailPage = ({ listingId, setCurrentPage }) => {
         <div>
           {/* Hero Section - Placeholder for images */}
           {/* Hero Section - Images */}
-{listing.images && listing.images.length > 0 ? (
-  <div style={{
-    height: '24rem',
-    borderRadius: '0.5rem',
-    marginBottom: '2rem',
-    overflow: 'hidden',
-    position: 'relative'
-  }}>
-    <img
-      src={listing.images[0]}
-      alt={listing.title}
-      style={{
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover'
-      }}
-    />
-    {listing.images.length > 1 && (
-      <div style={{
-        position: 'absolute',
-        bottom: '1rem',
-        right: '1rem',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        color: 'white',
-        padding: '0.5rem 1rem',
-        borderRadius: '0.375rem',
-        fontSize: '0.875rem',
-        fontWeight: '600'
-      }}>
-        +{listing.images.length - 1} more photos
-      </div>
-    )}
-  </div>
-) : (
-  <div style={{
-    height: '24rem',
-    background: 'linear-gradient(to bottom right, #818cf8, #a855f7)',
-    borderRadius: '0.5rem',
-    marginBottom: '2rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'white',
-    fontSize: '1.5rem',
-    fontWeight: '600'
-  }}>
-    No Images Available
-  </div>
-)}
+          {listing.images && listing.images.length > 0 ? (
+            <div style={{
+              height: '24rem',
+              borderRadius: '0.5rem',
+              marginBottom: '2rem',
+              overflow: 'hidden',
+              position: 'relative'
+            }}>
+              <img
+                src={listing.images[0]}
+                alt={listing.title}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover'
+                }}
+              />
+              {listing.images.length > 1 && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '1rem',
+                  right: '1rem',
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}>
+                  +{listing.images.length - 1} more photos
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{
+              height: '24rem',
+              background: 'linear-gradient(to bottom right, #818cf8, #a855f7)',
+              borderRadius: '0.5rem',
+              marginBottom: '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '1.5rem',
+              fontWeight: '600'
+            }}>
+              No Images Available
+            </div>
+          )}
 
           {/* Title & Price */}
           <div style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '2rem', marginBottom: '1.5rem', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
@@ -2483,28 +2488,28 @@ const ListingDetailPage = ({ listingId, setCurrentPage }) => {
           )}
 
           <button
-  onClick={() => {
-    window.scrollTo(0, 0);
-    window.contactUser = listing.user._id;
-    window.contactListing = listing._id;
-    window.triggerPageChange('messages');
-  }}
-  style={{
-    padding: '0.75rem 1.5rem',
-    backgroundColor: '#4f46e5',
-    color: 'white',
-    border: 'none',
-    borderRadius: '0.375rem',
-    cursor: 'pointer',
-    fontWeight: '600',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.5rem'
-  }}
->
-  <MessageCircle size={18} />
-  Message Owner
-</button>
+            onClick={() => {
+              window.scrollTo(0, 0);
+              window.contactUser = listing.user._id;
+              window.contactListing = listing._id;
+              window.triggerPageChange('messages');
+            }}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#4f46e5',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            <MessageCircle size={18} />
+            Message Owner
+          </button>
         </div>
 
         {/* Sidebar */}
@@ -2600,29 +2605,29 @@ const App = () => {
   const { user, loading, isNewUser } = useAuth();
 
   useEffect(() => {
-  if (user && currentPage === 'auth') {
-    if (isNewUser) {
-      setCurrentPage('editProfile'); // New users fill out preferences
-    } else {
-      setCurrentPage('browse'); // Existing users go to browse
+    if (user && currentPage === 'auth') {
+      if (isNewUser) {
+        setCurrentPage('editProfile'); // New users fill out preferences
+      } else {
+        setCurrentPage('browse'); // Existing users go to browse
+      }
     }
-  }
-}, [user, isNewUser, currentPage]);
+  }, [user, isNewUser, currentPage]);
 
   // Setup global page change trigger
   useEffect(() => {
-  window.triggerPageChange = (page) => {
-    if (page === 'viewUser' && window.viewUserProfile) {
-      setViewingUserId(window.viewUserProfile);
-      setCurrentPage('viewUser');
-    } else if (page === 'messages') {
-      setCurrentPage('messages');
-    } else if (page === 'listingDetail' && window.selectedListingId) {
-      setSelectedListingId(window.selectedListingId);
-      setCurrentPage('listingDetail');
-    }
-  };
-}, []);
+    window.triggerPageChange = (page) => {
+      if (page === 'viewUser' && window.viewUserProfile) {
+        setViewingUserId(window.viewUserProfile);
+        setCurrentPage('viewUser');
+      } else if (page === 'messages') {
+        setCurrentPage('messages');
+      } else if (page === 'listingDetail' && window.selectedListingId) {
+        setSelectedListingId(window.selectedListingId);
+        setCurrentPage('listingDetail');
+      }
+    };
+  }, []);
 
   if (loading) {
     return (
